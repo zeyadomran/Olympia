@@ -1,0 +1,24 @@
+This text file will describe all the steps you need to run the API.
+
+1. MySQL Server
+	In order for the API to work, it needs to connect to an MySQL server.
+	You can install MySQL from here: https://dev.mysql.com/downloads/
+	You need MySQL(Server,Shell,Router) and I would reccomend Connector/Python
+
+	I would also recomment installing MySQL workbench from the same link.
+	
+
+2. Import the Server State from Github and Run Server on LocalHost
+	TBD
+
+3. Python
+	You need a handful of packages in order to run the API
+	(Flask,flask-cors,app,flask-mysql,PyMySQL)
+		Please see "API python imports.txt" for pip commands
+	
+	Once you have the dependencies, write your MySQL server info inside config.py
+
+4. Run main.py
+	The printout should display what is being served as well as
+	where your API is running.
+
