@@ -27,18 +27,18 @@ DROP TABLE IF EXISTS `client`;
 CREATE TABLE `client` (
   `clientId` int NOT NULL AUTO_INCREMENT,
   `email` varchar(255) DEFAULT NULL,
-  `phoneNum` int unsigned DEFAULT NULL,
+  `phoneNum` varchar(255) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `firstName` varchar(255) DEFAULT NULL,
   `lastName` varchar(255) DEFAULT NULL,
   `sex` char(1) DEFAULT NULL,
-  `memberType` int DEFAULT NULL,
+  `memberType` varchar(255) DEFAULT NULL,
   `price` float DEFAULT NULL,
   `startDate` date DEFAULT NULL,
   `endDate` date DEFAULT NULL,
   `passwordHash` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`clientId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -111,7 +111,7 @@ CREATE TABLE `employee` (
   `eId` int NOT NULL AUTO_INCREMENT,
   `branchId` int DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
-  `phoneNum` int unsigned DEFAULT NULL,
+  `phoneNum` varchar(255) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `firstName` varchar(255) DEFAULT NULL,
   `lastname` varchar(255) DEFAULT NULL,
@@ -121,7 +121,7 @@ CREATE TABLE `employee` (
   PRIMARY KEY (`eId`),
   KEY `branchId` (`branchId`),
   CONSTRAINT `employee_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
-) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -146,7 +146,7 @@ CREATE TABLE `equipment` (
   `repairStatus` char(1) DEFAULT NULL,
   `purchaseDate` date DEFAULT NULL,
   `branchId` int DEFAULT NULL,
-  `storageType` char(1) DEFAULT NULL,
+  `storageType` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`eId`),
   KEY `branchId` (`branchId`,`storageType`),
   CONSTRAINT `equipment_ibfk_1` FOREIGN KEY (`branchId`, `storageType`) REFERENCES `gym_storage` (`branchId`, `storageType`)
@@ -173,6 +173,7 @@ CREATE TABLE `gym_branch` (
   `branchId` int NOT NULL AUTO_INCREMENT,
   `bName` varchar(255) DEFAULT NULL,
   `bAddress` varchar(255) DEFAULT NULL,
+  `timeSlotCapacity` int unsigned DEFAULT NULL,
   PRIMARY KEY (`branchId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -195,7 +196,7 @@ DROP TABLE IF EXISTS `gym_storage`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `gym_storage` (
   `branchId` int NOT NULL,
-  `storageType` char(1) NOT NULL,
+  `storageType` varchar(255) NOT NULL,
   PRIMARY KEY (`branchId`,`storageType`),
   CONSTRAINT `gym_storage_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -299,9 +300,14 @@ DROP TABLE IF EXISTS `service`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `service` (
   `serviceId` int NOT NULL AUTO_INCREMENT,
+  `branchId` int NOT NULL,
+  `serviceName` varchar(255) DEFAULT NULL,
   `timeOfService` time DEFAULT NULL,
+  `daysOfService` varchar(255) DEFAULT NULL,
   `capacity` int DEFAULT NULL,
-  PRIMARY KEY (`serviceId`)
+  PRIMARY KEY (`serviceId`,`branchId`),
+  KEY `branchId` (`branchId`),
+  CONSTRAINT `service_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -382,7 +388,6 @@ CREATE TABLE `time_slot` (
   `branchId` int NOT NULL,
   `dateOfBooking` date NOT NULL,
   `timeOfBooking` time NOT NULL,
-  `timeCapacity` int unsigned DEFAULT NULL,
   PRIMARY KEY (`branchId`,`dateOfBooking`,`timeOfBooking`),
   CONSTRAINT `time_slot_ibfk_1` FOREIGN KEY (`branchId`, `dateOfBooking`) REFERENCES `day_schedule` (`branchId`, `dateOfBooking`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -406,4 +411,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-18 14:47:33
+-- Dump completed on 2022-03-22 11:17:47

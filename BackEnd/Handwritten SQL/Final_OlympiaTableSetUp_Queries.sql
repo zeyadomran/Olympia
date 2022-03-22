@@ -4,12 +4,12 @@ use olympiadb;
 CREATE TABLE Client (
 	clientId INT PRIMARY KEY auto_increment,
 	email VARCHAR(255),
-	phoneNum INT unsigned,
+	phoneNum VARCHAR(255),
 	dob DATE,
 	firstName VARCHAR(255),
 	lastName VARCHAR(255),
 	sex CHAR(1),
-	memberType INT,
+	memberType VARCHAR(255),
 	price FLOAT,
 	startDate DATE,
 	endDate DATE,
@@ -19,7 +19,8 @@ CREATE TABLE Client (
 CREATE TABLE Gym_Branch (
 	branchId INT PRIMARY KEY auto_increment,
 	bName VARCHAR(255),
-	bAddress VARCHAR(255)
+	bAddress VARCHAR(255),
+	timeSlotCapacity INT UNSIGNED
 );
 
 CREATE TABLE Day_Schedule (
@@ -33,7 +34,6 @@ CREATE TABLE Time_Slot (
 	branchId INT,
 	dateOfBooking DATE,
 	timeOfBooking TIME,
-	timeCapacity INT unsigned,
 	PRIMARY KEY (branchId, dateOfBooking, timeOfBooking),
 	FOREIGN KEY (branchId,dateOfBooking) REFERENCES Day_Schedule(branchId,dateOfBooking)
 );
@@ -63,7 +63,7 @@ CREATE TABLE Client_Gym (
 
 CREATE TABLE Gym_Storage (
 	branchId INT,
-	storageType CHAR(1),
+	storageType VARCHAR(255),
 	PRIMARY KEY(branchId, storageType),
 	FOREIGN KEY (branchId) REFERENCES Gym_Branch(branchId)
 );
@@ -74,7 +74,7 @@ CREATE TABLE Equipment (
 	repairStatus CHAR(1),
 	purchaseDate DATE,
 	branchId INT,
-	storageType CHAR(1),
+	storageType VARCHAR(255),
 	FOREIGN KEY (branchId, storageType) REFERENCES Gym_Storage(branchId, storageType)
 );
 
@@ -92,7 +92,7 @@ CREATE TABLE Employee (
 	eId INT PRIMARY KEY auto_increment,
 	branchId INT,
 	email VARCHAR(255),
-	phoneNum INT unsigned,
+	phoneNum VARCHAR(255),
 	dob DATE,
 	firstName VARCHAR(255),
 	lastname VARCHAR(255),
@@ -111,9 +111,14 @@ CREATE TABLE Manages (
 );
 
 CREATE TABLE Service (
-	serviceId INT PRIMARY KEY auto_increment,
+	serviceId INT auto_increment,
+	branchId INT,
+	serviceName VARCHAR(255),
 	timeOfService time,
-	capacity INT
+	daysOfService VARCHAR(255),
+	capacity INT,
+	PRIMARY KEY (serviceId,branchId),
+	FOREIGN KEY (branchId) REFERENCES Gym_Branch(branchId)
 );
 
 CREATE TABLE INSTRUCTS (
@@ -133,5 +138,5 @@ CREATE TABLE Service_BOOKS (
 	FOREIGN KEY (clientId) REFERENCES CLIENT(clientId)
 );
 
-ALTER TABLE Client AUTO_INCREMENT=1001;
-ALTER TABLE Employee AUTO_INCREMENT=1001;
+ALTER TABLE Client AUTO_INCREMENT=10001;
+ALTER TABLE Employee AUTO_INCREMENT=10001;

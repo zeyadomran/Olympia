@@ -6,6 +6,7 @@ pip install -U app
 pip install flask-mysql
 pip install PyMySQL
 pip install pyjwt
+pip install bcrypt
 
 Please ensure the host and password in the matches your MySQL server in the config.py file.
 Also ensure you have the database contents stored on that server.
