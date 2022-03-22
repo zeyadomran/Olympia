@@ -275,6 +275,7 @@ CREATE TABLE `reports` (
   `clientId` int NOT NULL,
   `issue` varchar(1024) DEFAULT NULL,
   `dateOfReport` date DEFAULT NULL,
+  `curStatus` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`eId`,`clientId`),
   KEY `clientId` (`clientId`),
   CONSTRAINT `reports_ibfk_1` FOREIGN KEY (`eId`) REFERENCES `equipment` (`eId`),
@@ -411,4 +412,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-22 11:17:47
+-- Dump completed on 2022-03-22 15:28:57

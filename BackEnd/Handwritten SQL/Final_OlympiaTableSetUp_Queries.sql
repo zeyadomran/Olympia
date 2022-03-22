@@ -83,6 +83,7 @@ CREATE TABLE Reports (
 	clientId INT,
 	issue VARCHAR(1024),
 	dateOfReport DATE,
+	curStatus bool,
 	PRIMARY KEY (eId, clientId),
 	FOREIGN KEY (eId) REFERENCES Equipment(eId),
 	FOREIGN KEY (clientId) REFERENCES Client(clientId)
