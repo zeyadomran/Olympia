@@ -96,7 +96,7 @@ CREATE TABLE Employee (
 	phoneNum VARCHAR(255),
 	dob DATE,
 	firstName VARCHAR(255),
-	lastname VARCHAR(255),
+	lastName VARCHAR(255),
 	sex CHAR(1),
 	eType VARCHAR(255),
 	passwordHash VARCHAR(300),

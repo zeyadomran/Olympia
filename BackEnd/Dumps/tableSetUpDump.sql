@@ -114,7 +114,7 @@ CREATE TABLE `employee` (
   `phoneNum` varchar(255) DEFAULT NULL,
   `dob` date DEFAULT NULL,
   `firstName` varchar(255) DEFAULT NULL,
-  `lastname` varchar(255) DEFAULT NULL,
+  `lastName` varchar(255) DEFAULT NULL,
   `sex` char(1) DEFAULT NULL,
   `eType` varchar(255) DEFAULT NULL,
   `passwordHash` varchar(300) DEFAULT NULL,
