@@ -306,6 +306,7 @@ CREATE TABLE `service` (
   `timeOfService` time DEFAULT NULL,
   `daysOfService` varchar(255) DEFAULT NULL,
   `capacity` int DEFAULT NULL,
+  `description` text,
   PRIMARY KEY (`serviceId`,`branchId`),
   KEY `branchId` (`branchId`),
   CONSTRAINT `service_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
@@ -332,7 +333,8 @@ CREATE TABLE `service_books` (
   `branchId` int NOT NULL,
   `serviceId` int NOT NULL,
   `clientId` int NOT NULL,
-  PRIMARY KEY (`branchId`,`serviceId`,`clientId`),
+  `dateOfBooking` date NOT NULL,
+  PRIMARY KEY (`branchId`,`serviceId`,`clientId`,`dateOfBooking`),
   KEY `serviceId` (`serviceId`),
   KEY `clientId` (`clientId`),
   CONSTRAINT `service_books_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`),
@@ -412,4 +414,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-22 15:28:57
+-- Dump completed on 2022-03-22 19:40:26

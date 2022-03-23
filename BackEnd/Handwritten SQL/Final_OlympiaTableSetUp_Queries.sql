@@ -118,6 +118,7 @@ CREATE TABLE Service (
 	timeOfService time,
 	daysOfService VARCHAR(255),
 	capacity INT,
+	description text,
 	PRIMARY KEY (serviceId,branchId),
 	FOREIGN KEY (branchId) REFERENCES Gym_Branch(branchId)
 );
@@ -133,7 +134,8 @@ CREATE TABLE Service_BOOKS (
 	branchId INT,
 	serviceId INT,
 	clientId INT,
-	PRIMARY KEY (branchId, serviceId, clientId),
+	dateOfBooking date,
+	PRIMARY KEY (branchId, serviceId, clientId, dateOfBooking),
 	FOREIGN KEY (branchId) REFERENCES Gym_Branch(branchId),
 	FOREIGN KEY (serviceId) REFERENCES Service(serviceId),
 	FOREIGN KEY (clientId) REFERENCES CLIENT(clientId)
