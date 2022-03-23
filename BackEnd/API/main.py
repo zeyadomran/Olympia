@@ -50,7 +50,7 @@ def elogin():
             else: #found
                 emp = cursor.fetchone()
 
-                m = {"eId": _id,"eType":emp["eType"]}
+                m = {"eId": _id,"eType":emp["eType"], "loggedIn" : True}
 
                 j = jwt.encode(m, secret, algorithm="HS256")
 
@@ -71,6 +71,41 @@ def elogin():
     else:
         return authenticationError()
 
+
+@app.route('/employee/logout',methods=['POST'])
+def elogout():
+
+    if request.method == 'POST':
+
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        if(j["loggedIn"] == False):
+            return authenticationError()
+
+        message = {"loggedIn" : False}
+        j2 = jwt.encode(message, secret, algorithm="HS256")
+
+        m = { "logoutSuccess" : True}
+
+        response = jsonify(m)
+        response.status_code = 200
+
+        #set cookie
+        response.set_cookie("EJWT", j2, max_age=1) #cookie expires in 1 second
+
+        return response
+
+    else:
+        return not_found()
 
 @app.route('/client/login',methods=['POST'])
 def clogin():
@@ -100,7 +135,7 @@ def clogin():
             else: #found
                 cli = cursor.fetchone()
 
-                m = {"clientId": _id}
+                m = {"clientId": _id, "loggedIn" : True}
 
                 j = jwt.encode(m, secret, algorithm="HS256")
 
@@ -120,6 +155,43 @@ def clogin():
             conn.close()
     else:
         return authenticationError()
+
+@app.route('/client/logout',methods=['POST'])
+def clogout():
+
+    if request.method == 'POST':
+
+        cjwt = request.cookies.get("CJWT",None)
+
+        if(cjwt == None):
+            return authenticationError()
+
+        try:
+            j = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid cjwt was given
+        if(j["loggedIn"] == False):
+            return authenticationError()
+
+        message = {"loggedIn" : False}
+        j2 = jwt.encode(message, secret, algorithm="HS256")
+
+        m = { "logoutSuccess" : True}
+
+        response = jsonify(m)
+        response.status_code = 200
+
+        #set cookie
+        response.set_cookie("CJWT", j2, max_age=1) #cookie expires in 1 second
+
+        return response
+
+
+    else:
+        return not_found()
+
 
 
 #Occurs when request cannot be satisfied
