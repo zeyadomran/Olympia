@@ -6,7 +6,7 @@ const Login: NextPage = () => {
 	return (
 		<>
 			<Head>
-				<title>Olympia :: Login</title>
+				<title>Olympia :: Employee Login</title>
 			</Head>
 			<LoginFormEmployees />
 			<div className="w-full h-screen flex justify-center items-center bg-white-2">

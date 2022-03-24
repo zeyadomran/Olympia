@@ -1,9 +1,11 @@
 import { ErrorMessage, Form, Formik } from "formik";
+import { useRouter } from "next/router";
 import Logo from "../Logo";
 import InputField from "./InputField";
 import SubmitButton from "./SubmitButton";
 
 const Login: React.FC = () => {
+	const router = useRouter();
 	return (
 		<div className="w-full h-screen flex justify-center items-center bg-white-2">
 			<div className="p-8 w-1/5 bg-white flex flex-col justify-start items-center rounded-xl shadow-md">
@@ -25,9 +27,7 @@ const Login: React.FC = () => {
 					onSubmit={(values, { setSubmitting, resetForm }) => {
 						setSubmitting(true);
 						setTimeout(() => {}, 3000);
-						console.log(values);
-						setSubmitting(false);
-						resetForm();
+						router.push("/dashboard");
 					}}
 				>
 					{(props) => (
