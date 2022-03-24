@@ -11,6 +11,15 @@ module.exports = {
 				heading: ["IBM Plex Sans", "Helvetica", "sans-serif"],
 				body: ["IBM Plex Sans", "Arial", "sans-serif"],
 			},
+			colors: {
+				"white-2": "#E4E4E4",
+				green: "#57C361",
+				"green-2": "#7DD084",
+				blue: "#4002FF",
+				"blue-2": "#6735FF",
+				red: "#FC4135",
+				"red-2": "#FD7067",
+			},
 		},
 	},
 	variants: {
