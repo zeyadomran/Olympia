@@ -9,7 +9,7 @@ const SubmitButton: React.FC<Props> = ({ children, isSubmitting }) => {
 		<button
 			type="submit"
 			disabled={isSubmitting}
-			className="py-4 w-3/5 text-lg text-white bg-blue hover:bg-blue-2 disabled:bg-blue-2 rounded-xl transition-all mx-auto"
+			className="py-4 w-3/5 text-xl text-white font-medium bg-blue hover:bg-blue-2 disabled:bg-blue-2 rounded-xl transition-all mx-auto"
 		>
 			{isSubmitting ? (
 				<AiOutlineLoading3Quarters className="mx-auto motion-safe:animate-spin text-white w-8 h-8" />
