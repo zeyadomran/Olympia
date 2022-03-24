@@ -24,7 +24,7 @@ const InputField: React.FC<Props> = ({
 				<span className="text-sm text-red align-top">*</span>
 			</label>
 			<div
-				className={`flex flex-row justify-between items-center rounded-lg bg-white-2 w-full border ${
+				className={`p-2 flex flex-row justify-between items-center rounded-lg bg-white-2 w-full border-2 ${
 					error ? "text-red border-red" : "border-white-2"
 				}`}
 			>
@@ -32,26 +32,28 @@ const InputField: React.FC<Props> = ({
 					type={type !== "password" ? type : hidden ? "password" : "text"}
 					name={name}
 					placeholder={placeholder + "..."}
-					className="p-4 text-lg text-inherit focus:outline-none bg-white-2 rounded-lg"
+					className="p-2 text-lg text-inherit focus:outline-none bg-white-2 rounded-lg w-full"
 				/>
 				{type === "password" ? (
 					<div
-						className={`p-2 mr-2 flex justify-center items-center rounded-lg cursor-pointer z-10 transition-all ${
-							hidden ? "hover:bg-white-3" : "bg-green hover:bg-green-2"
-						}`}
+						className="p-2 flex justify-center items-center rounded-lg cursor-pointer z-10 transition-all hover:bg-white-3"
 						onClick={() => setHidden(!hidden)}
 					>
 						{hidden ? (
 							<AiOutlineEyeInvisible className="w-5 h-5 text-black" />
 						) : (
-							<AiOutlineEye className="w-5 h-5 text-white" />
+							<AiOutlineEye className="w-5 h-5 text-black" />
 						)}
 					</div>
 				) : (
 					""
 				)}
 			</div>
-			<p className="text-sm text-red pl-2">{error}</p>
+			{error ? (
+				<p className="text-md text-red pl-2">{error}</p>
+			) : (
+				<p className="text-md text-white pl-2">.</p>
+			)}
 		</div>
 	);
 };

@@ -16,10 +16,10 @@ const SubmitButton: React.FC<Props> = ({
 		<button
 			type="submit"
 			disabled={isSubmitting}
-			className={`px-6 py-4 text-xl font-medium ${
+			className={`py-4 text-xl font-medium ${
 				white
-					? "bg-white-2 hover:bg-white-3 disabled:bg-white-3"
-					: "bg-blue hover:bg-blue-2 disabled:bg-blue-2 text-white"
+					? "px-6 bg-white-2 hover:bg-white-3 disabled:bg-white-3"
+					: "w-4/5 bg-blue hover:bg-blue-2 disabled:bg-blue-2 text-white"
 			} rounded-lg transition-all`}
 			{...(action ? { onClick: action } : {})}
 		>

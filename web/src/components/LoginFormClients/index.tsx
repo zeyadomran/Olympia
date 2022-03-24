@@ -7,8 +7,8 @@ import SubmitButton from "../SubmitButton";
 const Login: React.FC = () => {
 	const router = useRouter();
 	return (
-		<div className="w-full h-screen flex justify-center items-center bg-white-2">
-			<div className="p-8 w-1/5 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
+		<div className="w-full h-screen flex justify-center items-center bg-blue-2">
+			<div className="p-8 w-96 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
 				<Logo>Olympia Login</Logo>
 				<Formik
 					initialValues={{ gymId: "", password: "" }}
@@ -31,7 +31,7 @@ const Login: React.FC = () => {
 					}}
 				>
 					{(props) => (
-						<Form className="w-full flex flex-col justify-center items-center mt-8 gap-y-4">
+						<Form className="w-full flex flex-col justify-center items-center mt-8 gap-y-2">
 							<InputField
 								type="text"
 								name="gymId"

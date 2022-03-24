@@ -4,7 +4,7 @@ const Logo: React.FC = ({ children }) => {
 	const router = useRouter();
 	return (
 		<h1
-			className="text-4xl font-bold cursor-pointer hover:text-blue transition-all"
+			className="text-4xl font-bold cursor-pointer hover:text-blue-2 transition-all"
 			onClick={() => router.push("/")}
 		>
 			{children}

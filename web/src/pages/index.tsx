@@ -11,8 +11,8 @@ const Home: NextPage = () => {
 			<Head>
 				<title>Olympia</title>
 			</Head>
-			<div className="w-full h-screen flex justify-center items-center bg-white-2">
-				<div className="p-8 w-1/5 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
+			<div className="w-full h-screen flex justify-center items-center bg-blue-2">
+				<div className="p-8 w-80 h-80 bg-white flex flex-col justify-center items-center rounded-lg shadow-md">
 					<Logo>Olympia</Logo>
 					<div className="w-full flex flex-col justify-center items-center gap-y-4 mt-8">
 						<Link href="/login" passHref>
