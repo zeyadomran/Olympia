@@ -643,6 +643,201 @@ def getAllTrainersOfBranch(bId):
                 conn.close()
 
 
+#Get all gym branches or add a gymBranch
+@app.route('/branches',methods=['GET','POST'])
+def getAllBranches():
+
+    if(request.method == 'GET'):
+        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        ejwt = request.cookies.get("EJWT",None)
+        cjwt = request.cookies.get("CJWT",None)
+
+        eFlag = False
+        cFlag = False
+
+        if(ejwt == None and cjwt == None):
+            return authenticationError()
+
+        if(ejwt != None):
+            eFlag = True
+            try:
+                ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                eFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
+
+        elif (eFlag == False and cjwt != None):
+            cFlag = True
+            try:
+                cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+            except:
+                cFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(cj["loggedIn"] == False):
+                eFlag = False
+        else:
+            return authenticationError()
+
+        if(cFlag == False and eFlag == False):
+            return authenticationError()
+
+        #Permissions are granted
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                result = cursor.execute('SELECT * FROM Gym_Branch;')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        branchesReturn = cursor.fetchall()
+                        response = jsonify(branchesReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+        finally:
+                cursor.close()
+                conn.close()
+
+
+
+    else: #POST
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee has permission or not
+        if(j["loggedIn"] == False or j["eType"] != "Admin"):
+            return authenticationError()
+
+        #Permissions are granted
+
+        #Gets required attributes from JSON body
+        try:
+            _json = request.json
+            _name = _json['bName']
+            _addr = _json['bAddress']
+            _capacity = _json['timeSlotCapacity']
+        except:
+            return badRequest()
+
+        #We have all the attributes
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            sqlQuery = "INSERT INTO Gym_Branch(bName,bAddress,timeSlotCapacity) VALUES(%s,%s,%s);"
+            bindData = (_name, _addr, _capacity)
+
+            cursor.execute(sqlQuery, bindData)
+            conn.commit()
+
+            result = cursor.execute('SELECT * FROM Gym_Branch WHERE LAST_INSERT_ID() = branchId;')
+
+            if(result <= 0):
+                return serverError()
+
+
+            r = cursor.fetchone()
+
+            response = jsonify(r)
+            response.status_code = 200
+            return response
+
+        except:
+            return badRequest()
+        finally:
+            conn.close()
+            cursor.close()
+
+
+
+
+#Gets one gymBranch from id
+@app.route('/branches/<int:bId>',methods=['GET'])
+def getABranch(bId):
+
+        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        ejwt = request.cookies.get("EJWT",None)
+        cjwt = request.cookies.get("CJWT",None)
+
+        eFlag = False
+        cFlag = False
+
+        if(ejwt == None and cjwt == None):
+            return authenticationError()
+
+        if(ejwt != None):
+            eFlag = True
+            try:
+                ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                eFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
+
+        elif (eFlag == False and cjwt != None):
+            cFlag = True
+            try:
+                cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+            except:
+                cFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(cj["loggedIn"] == False):
+                eFlag = False
+        else:
+            return authenticationError()
+
+        if(cFlag == False and eFlag == False):
+            return authenticationError()
+
+        #Permissions are granted
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                result = cursor.execute(f'SELECT * FROM Gym_Branch WHERE branchId = {bId};')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        branchReturn = cursor.fetchone()
+                        response = jsonify(branchReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+        finally:
+                cursor.close()
+                conn.close()
+
+
+
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
 def not_found(error=None):
