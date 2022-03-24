@@ -1,7 +1,9 @@
 import NextDocument, { Head, Html, Main, NextScript } from "next/document";
-import React from "react";
+import { createGetInitialProps } from "@mantine/next";
 
+const getInitialProps = createGetInitialProps();
 export default class Document extends NextDocument {
+	static getInitialProps = getInitialProps;
 	render() {
 		return (
 			<Html
@@ -15,6 +17,10 @@ export default class Document extends NextDocument {
 						rel="stylesheet"
 					/>
 					<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+					<meta
+						name="viewport"
+						content="minimum-scale=1, initial-scale=1, width=device-width"
+					/>
 				</Head>
 
 				<body className="min-h-screen [scroll-behavior:smooth]">

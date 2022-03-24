@@ -8,11 +8,11 @@ module.exports = {
 	theme: {
 		extend: {
 			fontFamily: {
-				heading: ["IBM Plex Sans", "Helvetica", "sans-serif"],
-				body: ["IBM Plex Sans", "Arial", "sans-serif"],
+				heading: ["IBM Plex Sans", "sans-serif"],
+				body: ["IBM Plex Sans", "sans-serif"],
 			},
 			colors: {
-				"white-2": "#E4E4E4",
+				"white-2": "#F1F3F5",
 				"white-3": "#DADADA",
 				green: "#57C361",
 				"green-2": "#7DD084",
