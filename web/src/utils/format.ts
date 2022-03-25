@@ -1,23 +1,38 @@
-export const formatPhoneNumber = (phoneNumber: string): string => {
-	let result = "(";
-	let i = 0;
-	while (i < 3 && i < phoneNumber.length) {
-		result += phoneNumber[i];
-		i++;
+import { ClientBooking, Timeslot, Dates } from "../types/DateTypes";
+
+export const formatAndMergeTimeslots = (
+	available: Dates[],
+	booked: ClientBooking[]
+): Dates[] => {
+	const formattedAvailable: Dates[] = [];
+
+	for (let i = 0; i < available.length; i++) {
+		const timeslots: Timeslot[] = [];
+		const availableTimeslots = available[i].timeslots;
+		let dayBooked = false;
+		for (let j = 0; j < availableTimeslots.length; j++) {
+			const t = availableTimeslots[j];
+			const bookedAlready = booked.find(
+				(b) => b.date === available[i].date && b.time === t.time
+			);
+			const b = bookedAlready ? true : false;
+			if (b && !dayBooked) dayBooked = true;
+			timeslots.push({ ...t, bookedAlready: b });
+		}
+		formattedAvailable.push({
+			...available[i],
+			timeslots,
+			bookedAlready: dayBooked,
+		});
 	}
-	if (i < 3) return result;
-	result += ") ";
-	while (i < 6 && i < phoneNumber.length) {
-		result += phoneNumber[i];
-		i++;
-	}
-	if (i < 6) return result;
-	result += "-";
-	while (i < 10 && i < phoneNumber.length) {
-		result += phoneNumber[i];
-		i++;
-	}
-	return result;
+	return formattedAvailable;
+};
+
+export const formatDate = (date: string): string => {
+	const d = new Date(date);
+	const month = d.toLocaleString("default", { month: "long" });
+	const day = d.getDate();
+	return `${month} ${day}`;
 };
 
 export const formatMembershipType = (membershipType: string): string => {
