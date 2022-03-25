@@ -279,6 +279,51 @@ def getAllEmps():
                 conn.close()
 
 
+#Get employee off of EJWT
+@app.route('/employee/me',methods=['GET'])
+def getEmpEJWT():
+
+        #Permissions: Either valid EJWT matching the id requested or Admin EJWT
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False):
+            return authenticationError()
+
+
+        #Permissions are granted
+
+        id = ej["eId"] #Gets eId from EJWT
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                result = cursor.execute(f'SELECT eId,branchId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,eType FROM employee WHERE eId = {id};')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        empReturn = cursor.fetchone()
+                        response = jsonify(empReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+        finally:
+                cursor.close()
+                conn.close()
+
 
 @app.route('/client/login',methods=['POST'])
 def clogin():
@@ -552,6 +597,53 @@ def getAllClients():
         finally:
                 cursor.close()
                 conn.close()
+
+
+#Get client by CJWT
+@app.route('/client/me',methods=['GET'])
+def getClientCJWT():
+
+        #Permissions: Either valid EJWT matching the id requested or Admin EJWT
+        cjwt = request.cookies.get("CJWT",None)
+
+        if(cjwt == None):
+            return authenticationError()
+
+        try:
+            cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(cj["loggedIn"] == False):
+            return authenticationError()
+
+
+        #Permissions are granted
+
+        id = cj["clientId"] #Gets eId from EJWT
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                result = cursor.execute(f'SELECT clientId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,memberType,price,DATE_FORMAT(startDate,"%Y-%m-%d") as startDate,DATE_FORMAT(endDate,"%Y-%m-%d") as endDate FROM client WHERE clientId = {id};')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        clientReturn = cursor.fetchone()
+                        response = jsonify(clientReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+        finally:
+                cursor.close()
+                conn.close()
+
 
 
 
