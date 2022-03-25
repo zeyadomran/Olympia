@@ -19,7 +19,7 @@ const TimeColumn: React.FC<Props> = ({ date }) => {
 					</div>
 				)}
 			</div>
-			<div className="flex flex-col justify-start items-center gap-y-4 w-full max-h-[28rem] overflow-y-scroll pt-6">
+			<div className="flex flex-col justify-start items-center gap-y-4 w-full max-h-[24rem] overflow-y-scroll pt-6">
 				{date.timeslots.map((time, index) => (
 					<TimeSlot key={index} time={time} date={date} />
 				))}

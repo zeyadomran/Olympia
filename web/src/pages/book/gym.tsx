@@ -25,17 +25,15 @@ const Gym: NextPage<Props> = ({ available, branches }) => {
 				<title>Olympia :: Book Gym Timeslot</title>
 			</Head>
 			<div className="w-full flex justify-center items-center">
-				<div className="flex flex-col justify-between items-center w-4/5 gap-y-8 mt-8">
+				<div className="flex flex-col justify-between items-center w-4/5 mt-8">
 					<SubNavbar href="/dashboard" />
-					<div className="px-8 w-full gap-y-8 flex flex-col justify-start items-center">
+					<div className="w-full flex flex-col justify-start items-center">
 						<h2 className="text-4xl font-bold">Manage Gym Bookings</h2>
-						{!branchId && (
-							<SelectBranch
-								branches={branches}
-								branchId={branchId}
-								setBranchId={setBranchId}
-							/>
-						)}
+						<SelectBranch
+							branches={branches}
+							branchId={branchId}
+							setBranchId={setBranchId}
+						/>
 						{branchId && <TimeTable dates={available} />}
 					</div>
 				</div>

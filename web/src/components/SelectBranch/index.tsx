@@ -28,6 +28,7 @@ const SelectBranch: React.FC<Props> = ({ branches, branchId, setBranchId }) => {
 				label="Select your branch of choice"
 				size="lg"
 				radius="md"
+				disabled={!!branchId}
 				required
 			/>
 		</div>

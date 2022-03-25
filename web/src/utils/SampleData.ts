@@ -65,8 +65,10 @@ const generateRandomBookings = (
 };
 
 export const BRANCHES: { id: string; name: string }[] = [
-	{ id: "1", name: "Branch 1" },
-	{ id: "2", name: "Branch 2" },
+	{ id: "1", name: "University District" },
+	{ id: "2", name: "Steven Ave" },
+	{ id: "3", name: "Brentwood" },
+	{ id: "4", name: "Citadel" },
 ];
 
 export const GYM_AND_SERVICE_AVAILABLE_TIMES: Date[] = generateRandomTimes(
