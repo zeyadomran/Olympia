@@ -1,4 +1,4 @@
-import { ClientBooking, Dates, Timeslot } from "../types/DateTypes";
+import { ClientBooking, Date, Timeslot } from "../types/DateTypes";
 
 const dates: string[] = [
 	"2022-03-24",
@@ -14,8 +14,8 @@ const generateRandomTimes = (
 	startHour: number,
 	endHour: number,
 	capacity: number
-): Dates[] => {
-	const result: Dates[] = [];
+): Date[] => {
+	const result: Date[] = [];
 	for (let date of dates) {
 		let timeslots: Timeslot[] = [];
 		for (let i = startHour; i < endHour; i++) {
@@ -69,7 +69,7 @@ export const BRANCHES: { id: string; name: string }[] = [
 	{ id: "2", name: "Branch 2" },
 ];
 
-export const GYM_AND_SERVICE_AVAILABLE_TIMES: Dates[] = generateRandomTimes(
+export const GYM_AND_SERVICE_AVAILABLE_TIMES: Date[] = generateRandomTimes(
 	6,
 	23,
 	40

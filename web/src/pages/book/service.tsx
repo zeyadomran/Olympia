@@ -2,7 +2,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import SubNavbar from "../../components/SubNavbar";
 import TimeTable from "../../components/TimeTable";
-import { Dates } from "../../types/DateTypes";
+import { Date } from "../../types/DateTypes";
 import { formatAndMergeTimeslots } from "../../utils/format";
 import {
 	GYM_AND_SERVICE_AVAILABLE_TIMES,
@@ -10,7 +10,7 @@ import {
 } from "../../utils/SampleData";
 
 interface Props {
-	available: Dates[];
+	available: Date[];
 }
 
 const Service: NextPage<Props> = ({ available }) => {
@@ -24,7 +24,7 @@ const Service: NextPage<Props> = ({ available }) => {
 					<SubNavbar href="/dashboard" />
 					<div className="px-8 w-full gap-y-8 flex flex-col justify-start items-center">
 						<h2 className="text-4xl font-bold">Manage Service Bookings</h2>
-						<TimeTable available={available} />
+						<TimeTable dates={available} />
 					</div>
 				</div>
 			</div>

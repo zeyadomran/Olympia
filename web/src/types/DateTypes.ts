@@ -5,7 +5,7 @@ export interface Timeslot {
 	bookedAlready?: boolean;
 }
 
-export interface Dates {
+export interface Date {
 	date: string;
 	bookedAlready?: boolean;
 	timeslots: Timeslot[];

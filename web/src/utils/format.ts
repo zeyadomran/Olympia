@@ -1,10 +1,10 @@
-import { ClientBooking, Timeslot, Dates } from "../types/DateTypes";
+import { ClientBooking, Timeslot, Date as D } from "../types/DateTypes";
 
 export const formatAndMergeTimeslots = (
-	available: Dates[],
+	available: D[],
 	booked: ClientBooking[]
-): Dates[] => {
-	const formattedAvailable: Dates[] = [];
+): D[] => {
+	const formattedAvailable: D[] = [];
 
 	for (let i = 0; i < available.length; i++) {
 		const timeslots: Timeslot[] = [];
@@ -30,7 +30,7 @@ export const formatAndMergeTimeslots = (
 
 export const formatDate = (date: string): string => {
 	const d = new Date(date);
-	const month = d.toLocaleString("default", { month: "long" });
+	const month = d.toLocaleString("default", { month: "short" });
 	const day = d.getDate();
 	return `${month} ${day}`;
 };

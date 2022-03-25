@@ -4,7 +4,7 @@ import { useState } from "react";
 import SelectBranch from "../../components/SelectBranch";
 import SubNavbar from "../../components/SubNavbar";
 import TimeTable from "../../components/TimeTable";
-import { Dates } from "../../types/DateTypes";
+import { Date } from "../../types/DateTypes";
 import { formatAndMergeTimeslots } from "../../utils/format";
 import {
 	BRANCHES,
@@ -13,7 +13,7 @@ import {
 } from "../../utils/SampleData";
 
 interface Props {
-	available: Dates[];
+	available: Date[];
 	branches: { id: string; name: string }[];
 }
 
@@ -36,7 +36,7 @@ const Gym: NextPage<Props> = ({ available, branches }) => {
 								setBranchId={setBranchId}
 							/>
 						)}
-						{branchId && <TimeTable available={available} />}
+						{branchId && <TimeTable dates={available} />}
 					</div>
 				</div>
 			</div>
