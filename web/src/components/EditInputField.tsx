@@ -45,7 +45,10 @@ const EditInputField: React.FC<Props> = ({
 	};
 
 	const onSubmit = () => {
-		if (value === initialValue) return;
+		if (value === initialValue) {
+			setFormState(FORM_STATES.INITIAL);
+			return;
+		}
 
 		if (validate) setError(validate(value));
 		else if (!value) setError(`Please provide a ${label.toLowerCase()}.`);
@@ -60,7 +63,10 @@ const EditInputField: React.FC<Props> = ({
 		};
 		setTimeout(() => {
 			if (!res.error) setFormState(FORM_STATES.SUCCESS);
-			else setFormState(FORM_STATES.ERROR);
+			else {
+				setFormState(FORM_STATES.ERROR);
+				setError("Something went wrong...");
+			}
 		}, 3000);
 	};
 
@@ -72,7 +78,7 @@ const EditInputField: React.FC<Props> = ({
 			<div
 				className={`p-2 flex flex-row justify-between items-center rounded-lg w-full border-2 ${
 					error
-						? "text-red border-red"
+						? "text-red border-red bg-white-2"
 						: formState !== FORM_STATES.EDITING
 						? "bg-white-3 border-white-3"
 						: "bg-white-2 border-white-2"
