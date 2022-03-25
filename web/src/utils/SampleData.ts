@@ -66,9 +66,16 @@ const generateRandomBookings = (
 
 export const BRANCHES: { id: string; name: string }[] = [
 	{ id: "1", name: "University District" },
-	{ id: "2", name: "Steven Ave" },
+	{ id: "2", name: "Stephen Ave" },
 	{ id: "3", name: "Brentwood" },
 	{ id: "4", name: "Citadel" },
+];
+
+export const SERVICES: { id: string; name: string }[] = [
+	{ id: "1", name: "Swimming Pool" },
+	{ id: "2", name: "Sauna" },
+	{ id: "3", name: "Cardio with Chloe" },
+	{ id: "4", name: "Deadlift with Zeyad" },
 ];
 
 export const GYM_AND_SERVICE_AVAILABLE_TIMES: Date[] = generateRandomTimes(

@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-import SelectBranch from "../../components/SelectBranch";
+import Selector from "../../components/Selector";
 import SubNavbar from "../../components/SubNavbar";
 import TimeTable from "../../components/TimeTable";
 import { Date } from "../../types/DateTypes";
@@ -29,10 +29,11 @@ const Gym: NextPage<Props> = ({ available, branches }) => {
 					<SubNavbar href="/dashboard" />
 					<div className="w-full flex flex-col justify-start items-center">
 						<h2 className="text-4xl font-bold">Manage Gym Bookings</h2>
-						<SelectBranch
-							branches={branches}
-							branchId={branchId}
-							setBranchId={setBranchId}
+						<Selector
+							values={branches}
+							valueId={branchId}
+							setValueId={setBranchId}
+							name="branch"
 						/>
 						{branchId && <TimeTable dates={available} />}
 					</div>

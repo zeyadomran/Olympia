@@ -35,6 +35,14 @@ export const formatDate = (date: string): string => {
 	return `${month} ${day}`;
 };
 
+export const formatSentenceCase = (str: string): string => {
+	return str
+		.toLowerCase()
+		.split(" ")
+		.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+		.join(" ");
+};
+
 export const formatMembershipType = (membershipType: string): string => {
 	switch (membershipType) {
 		case "DAY_PASS":
