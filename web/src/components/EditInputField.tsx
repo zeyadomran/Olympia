@@ -5,7 +5,7 @@ import {
 	MdOutlineModeEdit,
 	MdOutlineDone,
 } from "react-icons/md";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
 	label: string;
@@ -32,6 +32,14 @@ const EditInputField: React.FC<Props> = ({
 	const [value, setValue] = useState(initialValue);
 	const [error, setError] = useState<string | undefined>(undefined);
 	const [formState, setFormState] = useState<FORM_STATES>(FORM_STATES.INITIAL);
+
+	useEffect(() => {
+		if (formState === FORM_STATES.SUCCESS || formState === FORM_STATES.ERROR)
+			setTimeout(() => {
+				setFormState(FORM_STATES.INITIAL);
+				setError(undefined);
+			}, 3000);
+	}, [formState]);
 
 	const transitionFormState = (formState: FORM_STATES) => {
 		switch (formState) {
