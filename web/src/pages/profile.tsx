@@ -5,11 +5,7 @@ import EditInputField from "../components/EditInputField";
 import Logo from "../components/Logo";
 import Client from "../types/Client";
 import { formatMembershipType } from "../utils/format";
-import {
-	validateDOB,
-	validateEmail,
-	validatePhoneNumber,
-} from "../utils/validate";
+import { validateEmail, validatePhoneNumber } from "../utils/validate";
 
 interface Props {
 	client: Client;

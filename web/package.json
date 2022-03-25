@@ -12,7 +12,6 @@
     "@mantine/core": "^4.0.7",
     "@mantine/hooks": "^4.0.7",
     "@mantine/next": "^4.0.7",
-    "@mantine/notifications": "^4.0.7",
     "@svgr/webpack": "^6.2.1",
     "formik": "^2.2.9",
     "next": "12.1.0",

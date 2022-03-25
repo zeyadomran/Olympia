@@ -10,9 +10,7 @@ function MyApp({ Component, pageProps }: AppProps) {
 			withNormalizeCSS
 			theme={{ colorScheme: "light" }}
 		>
-			<NotificationsProvider zIndex={2077} limit={5}>
-				<Component {...pageProps} />
-			</NotificationsProvider>
+			<Component {...pageProps} />
 		</MantineProvider>
 	);
 }
