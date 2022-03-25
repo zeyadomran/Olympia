@@ -1,8 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
 import EditInputField from "../components/EditInputField";
-import Logo from "../components/Logo";
+import SubNavbar from "../components/SubNavbar";
 import Client from "../types/Client";
 import { formatMembershipType } from "../utils/format";
 import { validateEmail, validatePhoneNumber } from "../utils/validate";
@@ -19,14 +18,7 @@ const Profile: NextPage<Props> = ({ client }) => {
 			</Head>
 			<div className="w-full flex justify-center items-center">
 				<div className="flex flex-col justify-between items-center w-4/5 gap-y-8 mt-8">
-					<div className="p-4 w-full flex justify-between items-center">
-						<Logo>Olympia</Logo>
-						<Link href="/dashboard" passHref>
-							<button className="py-4 text-xl font-medium px-6 bg-white-2 hover:bg-white-3 disabled:bg-white-3  rounded-lg transition-all">
-								Back
-							</button>
-						</Link>
-					</div>
+					<SubNavbar href="/dashboard" />
 					<div className="flex flex-col justify-center items-center w-full gap-y-4">
 						<h2 className="text-4xl font-bold">
 							Your Profile - {client.clientId}
