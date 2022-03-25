@@ -78,6 +78,13 @@ export const SERVICES: { id: string; name: string }[] = [
 	{ id: "4", name: "Deadlift with Zeyad" },
 ];
 
+export const EQUIPMENT: { id: string; name: string }[] = [
+	{ id: "1", name: "Bench Press" },
+	{ id: "2", name: "Squat Rack" },
+	{ id: "3", name: "Lat Pulldown" },
+	{ id: "4", name: "Dumbbell Rack" },
+];
+
 export const GYM_AND_SERVICE_AVAILABLE_TIMES: Date[] = generateRandomTimes(
 	6,
 	23,

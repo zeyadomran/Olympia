@@ -7,9 +7,18 @@ interface Props {
 	valueId: string | undefined;
 	setValueId: Dispatch<SetStateAction<string | undefined>>;
 	name: string;
+	noLabel?: boolean;
+	noDisable?: boolean;
 }
 
-const Selector: React.FC<Props> = ({ values, valueId, setValueId, name }) => {
+const Selector: React.FC<Props> = ({
+	values,
+	valueId,
+	setValueId,
+	name,
+	noLabel,
+	noDisable,
+}) => {
 	const [value, setValue] = useState("");
 
 	const chooseOne = (choice: string) => {
@@ -21,19 +30,17 @@ const Selector: React.FC<Props> = ({ values, valueId, setValueId, name }) => {
 	};
 
 	return (
-		<div className="w-full p-8 flex flex-col justify-center items-center">
-			<NativeSelect
-				data={values.map((branch) => branch.name)}
-				placeholder={`Choose your ${name}...`}
-				onChange={(e) => chooseOne(e.target.value)}
-				value={value}
-				label={formatSentenceCase(name)}
-				size="lg"
-				radius="md"
-				disabled={!!valueId}
-				required
-			/>
-		</div>
+		<NativeSelect
+			data={values.map((branch) => branch.name)}
+			placeholder={`Select ${name}...`}
+			onChange={(e) => chooseOne(e.target.value)}
+			value={value}
+			label={!noLabel ? formatSentenceCase(name) : undefined}
+			size="lg"
+			radius="md"
+			disabled={!!valueId && !noDisable}
+			required
+		/>
 	);
 };
 
