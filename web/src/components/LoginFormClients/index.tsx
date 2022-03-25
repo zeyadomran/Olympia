@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import Logo from "../Logo";
 import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
+import { validateGymId, validatePassword } from "../../utils/validate";
 
 const Login: React.FC = () => {
 	const router = useRouter();
@@ -14,14 +15,8 @@ const Login: React.FC = () => {
 					initialValues={{ gymId: "", password: "" }}
 					validate={(values) => {
 						let errors: any = {};
-						if (!values.gymId) {
-							errors.gymId = "Please provide your gym id.";
-						}
-						if (!values.password) {
-							errors.password = "Please provide a password.";
-						} else if (values.password.length < 8) {
-							errors.password = "Password must be at least 8 characters.";
-						}
+						errors.gymId = validateGymId(values.gymId);
+						errors.password = validatePassword(values.password);
 						return errors;
 					}}
 					onSubmit={(values, { setSubmitting, resetForm }) => {

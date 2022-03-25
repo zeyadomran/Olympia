@@ -31,7 +31,7 @@ const Dashboard: NextPage = () => {
 					</div>
 					<div className="p-4 w-auto grid grid-cols-2 grid-rows-2 gap-8">
 						<DashButton
-							title="Profile"
+							title="View Profile"
 							href="/profile"
 							icon={<CgProfile className="w-1/2 h-1/2" />}
 						/>
