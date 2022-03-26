@@ -1477,6 +1477,124 @@ def getReportsFromClient():
 
 
 
+#Get all bookings within a week from a branch
+@app.route('/braches/<int:bId>/getBookings',methods=['GET'])
+def getWeekBookingsFromBranch(bId):
+    #Permissions: Either any valid EJWT or CJWT
+    ejwt = request.cookies.get("EJWT",None)
+    cjwt = request.cookies.get("CJWT",None)
+
+    eFlag = False
+    cFlag = False
+
+    if(ejwt == None and cjwt == None):
+        return authenticationError()
+
+    if(ejwt != None):
+        eFlag = True
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            eFlag = False
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False):
+            eFlag = False
+
+    elif (eFlag == False and cjwt != None):
+        cFlag = True
+        try:
+            cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            cFlag = False
+
+        #a valid ejwt was given
+        #checks whether this client is loggedIn
+        if(cj["loggedIn"] == False):
+            eFlag = False
+    else:
+        return authenticationError()
+
+    if(cFlag == False and eFlag == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    try:
+            #Gets YYYY-MM-DD of today and the date seven days from today
+            t = datetime.date.today()
+            today = str(t.strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+            sevenDays = str((t + datetime.timedelta(days=7)).strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+
+
+
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            result = cursor.execute(f'SELECT branchId,DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking,TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking FROM time_slot WHERE branchId = {bId} AND dateOfBooking >= "{today}" AND dateOfBooking < "{sevenDays}";')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+
+            slots = cursor.fetchall() # all timeslots in the next 7 days
+
+            cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking, TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking, COUNT(*) as count FROM time_books WHERE branchId = 1 AND dateOfBooking >= "2022-03-26" AND dateOfBooking < "2022-04-02" GROUP BY dateOfBooking,timeOfBooking;')
+
+            booked = cursor.fetchall() # How many each of those time slots has filled
+
+
+            bd = dict()
+            for c in booked:
+                if(not c["dateOfBooking"] in bd):
+                    bd[c["dateOfBooking"]] = dict()
+
+                bd[c["dateOfBooking"]][c["timeOfBooking"]] = c["count"]
+
+            cursor.execute(f'SELECT timeSlotCapacity FROM Gym_Branch WHERE branchId = {bId};')
+
+            capD = cursor.fetchone() # the capacity of each timeSlot from the gym branch
+            cap = capD['timeSlotCapacity']
+
+
+            d = dict() #key = date, value = [(timeSlot,spacesLeft)]
+            for timeSlot in slots:
+                date = timeSlot["dateOfBooking"]
+                time = timeSlot["timeOfBooking"]
+
+                if(not date in d):
+                    d[date] = list()
+
+                if(not date in bd):
+                    d[date].append((time,cap))
+                elif(time in bd[date]):
+                    d[date].append((timeSlot["timeOfBooking"],cap - bd[date][time])) #appends (timeSlot,numLeft) to dateDictionary
+                else:
+                    d[date].append((timeSlot["timeOfBooking"],cap)) #appends (timeSlot,numLeft) to dateDictionary
+
+
+
+            r = list()
+            for k in d:
+                d2 = dict()
+                d2["date"] = k
+                d2["capacity"] = cap
+                d2["timeSlots"] = d[k]
+                r.append(d2)
+
+            response = jsonify(r)
+            response.status_code = 200
+            return response
+
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+
 
 
 #Occurs when request cannot be satisfied
