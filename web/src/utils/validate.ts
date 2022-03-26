@@ -36,3 +36,8 @@ export const validateDOB = (dob: string): string => {
 	}
 	return "";
 };
+
+export const validateDefault = (value: string, name: string): string => {
+	if (!value) return `Please provide a ${name}.`;
+	return "";
+};

@@ -99,6 +99,15 @@ export const BRANCHES: Item[] = [
 	{ id: "4", name: "Citadel" },
 ];
 
+export const MEMBERSHIP_TYPES: string[] = [
+	"DAY_PASS",
+	"WEEK_PASS",
+	"30_DAY_PASS",
+	"90_DAY_PASS",
+	"180_DAY_PASS",
+	"YEAR_PASS",
+];
+
 export const SERVICES: Item[] = [
 	{ id: "1", name: "Swimming Pool" },
 	{ id: "2", name: "Sauna" },

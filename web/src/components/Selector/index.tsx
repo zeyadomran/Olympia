@@ -39,6 +39,9 @@ const Selector: React.FC<Props> = ({
 			label={!noLabel ? formatSentenceCase(name) : undefined}
 			size="lg"
 			radius="md"
+			classNames={{
+				input: "bg-white-2 hover:bg-white-3 cursor-pointer transition-all",
+			}}
 			disabled={!!valueId && !noDisable}
 			required
 		/>
