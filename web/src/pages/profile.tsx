@@ -4,6 +4,7 @@ import EditInputField from "../components/EditInputField";
 import SubNavbar from "../components/SubNavbar";
 import Client from "../types/Client";
 import { formatMembershipType } from "../utils/format";
+import { CLIENT } from "../utils/SampleData";
 import { validateEmail, validatePhoneNumber } from "../utils/validate";
 
 interface Props {
@@ -79,20 +80,11 @@ const Profile: NextPage<Props> = ({ client }) => {
 };
 
 export async function getServerSideProps() {
-	const client: Client = {
-		clientId: 10001,
-		email: "bob@gmail.com",
-		phoneNum: "4035551234",
-		dob: "2001-03-27",
-		firstName: "Bob",
-		lastName: "Smith",
-		sex: "M",
-		memberType: "YEAR_PASS",
-		price: 480.0,
-		startDate: "2022-01-01",
-		endDate: "2022-12-31",
+	return {
+		props: {
+			client: CLIENT,
+		},
 	};
-	return { props: { client } };
 }
 
 export default Profile;

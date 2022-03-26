@@ -1,4 +1,6 @@
+import Client from "../types/Client";
 import { ClientBooking, Date, Timeslot } from "../types/DateTypes";
+import Employee from "../types/Employee";
 
 const dates: string[] = [
 	"2022-03-24",
@@ -62,6 +64,31 @@ const generateRandomBookings = (
 		}
 	}
 	return result;
+};
+
+export const CLIENT: Client = {
+	clientId: 10001,
+	email: "bob@gmail.com",
+	phoneNum: "4035551234",
+	dob: "2001-03-27",
+	firstName: "Bob",
+	lastName: "Smith",
+	sex: "M",
+	memberType: "YEAR_PASS",
+	price: 480.0,
+	startDate: "2022-01-01",
+	endDate: "2022-12-31",
+};
+
+export const EMPLOYEE: Employee = {
+	eId: 10001,
+	eType: "Admin",
+	email: "bob@gmail.com",
+	phoneNum: "4035551234",
+	dob: "2001-03-27",
+	firstName: "Bob",
+	lastName: "Smith",
+	sex: "M",
 };
 
 export const BRANCHES: { id: string; name: string }[] = [
