@@ -1787,6 +1787,54 @@ def addRemoveTimeSlot(bId):
             conn.close()
 
 
+#Get all bookings that the CJWT has booked from that gymBranch
+@app.route('/braches/<int:bId>/getBooked',methods=['GET'])
+def getClientBookingsFromBranch(bId):
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    try:
+
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            result = cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking,TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking FROM time_books WHERE branchId = {bId} AND clientId = {cId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+
+            bookings = cursor.fetchall()
+
+            response = jsonify(bookings)
+            response.status_code = 200
+            return response
+
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+
+
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
 def not_found(error=None):
