@@ -116,7 +116,7 @@ CREATE TABLE Service (
 	branchId INT,
 	serviceName VARCHAR(255),
 	timeOfService time,
-	duration float,
+	timeEnds time,
 	daysOfService VARCHAR(255),
 	capacity INT,
 	description text,
