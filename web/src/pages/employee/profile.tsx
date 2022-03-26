@@ -18,7 +18,7 @@ const Profile: NextPage<Props> = ({ employee }) => {
 			</Head>
 			<div className="w-full flex justify-center items-center">
 				<div className="flex flex-col justify-between items-center w-4/5 gap-y-8 mt-8">
-					<SubNavbar href="/dashboard" />
+					<SubNavbar href="/employee/dashboard" />
 					<div className="flex flex-col justify-center items-center w-full gap-y-4">
 						<h2 className="text-4xl font-bold">Your Profile</h2>
 						<div className="grid grid-cols-2 gap-x-8 p-4 w-auto">

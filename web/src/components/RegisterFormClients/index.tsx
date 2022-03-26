@@ -21,7 +21,7 @@ const Login: React.FC = () => {
 	return (
 		<div className="w-full flex justify-center items-center">
 			<div className="flex flex-col justify-between items-center w-4/5 mt-8">
-				<SubNavbar href="/dashboard" />
+				<SubNavbar href="/employee/dashboard" />
 				<Formik
 					initialValues={{
 						email: "",
