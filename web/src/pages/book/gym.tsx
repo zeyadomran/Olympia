@@ -27,7 +27,7 @@ const Gym: NextPage<Props> = ({ available, branches }) => {
 			<div className="w-full flex justify-center items-center">
 				<div className="flex flex-col justify-between items-center w-4/5 mt-8">
 					<SubNavbar href="/dashboard" />
-					<div className="w-full flex flex-col justify-start items-center">
+					<div className="w-full flex flex-col justify-start items-center gap-y-4">
 						<h2 className="text-4xl font-bold">Manage Gym Bookings</h2>
 						<Selector
 							values={branches}

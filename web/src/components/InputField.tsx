@@ -21,7 +21,7 @@ const InputField: React.FC<Props> = ({
 		<div className="flex flex-col justify-start items-start w-full">
 			<label className={`text-lg font-medium pl-2 ${error ? "text-red" : ""}`}>
 				{label}
-				<span className="text-sm text-red align-top">*</span>
+				<span className="text-sm text-red align-top select-none">*</span>
 			</label>
 			<div
 				className={`p-2 flex flex-row justify-between items-center rounded-lg bg-white-2 w-full border-2 ${
@@ -52,7 +52,7 @@ const InputField: React.FC<Props> = ({
 			{error ? (
 				<p className="text-md text-red pl-2">{error}</p>
 			) : (
-				<p className="text-md text-white pl-2">.</p>
+				<p className="text-md text-white pl-2 select-none">.</p>
 			)}
 		</div>
 	);

@@ -17,6 +17,7 @@ const Login: React.FC = () => {
 						let errors: any = {};
 						errors.email = validateEmail(values.email);
 						errors.password = validatePassword(values.password);
+						if (!errors.email && !errors.password) return undefined;
 						return errors;
 					}}
 					onSubmit={(values, { setSubmitting, resetForm }) => {
