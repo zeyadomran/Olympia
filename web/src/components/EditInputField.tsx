@@ -13,6 +13,7 @@ interface Props {
 	endpoint?: string;
 	validate?: (value: any) => string;
 	noEdit?: boolean;
+	small?: boolean;
 }
 
 enum FORM_STATES {
@@ -28,6 +29,7 @@ const EditInputField: React.FC<Props> = ({
 	label,
 	validate,
 	noEdit,
+	small,
 }) => {
 	const [value, setValue] = useState(initialValue);
 	const [error, setError] = useState<string | undefined>(undefined);
@@ -79,12 +81,22 @@ const EditInputField: React.FC<Props> = ({
 	};
 
 	return (
-		<div className="flex flex-col justify-start items-start w-full">
-			<label className={`text-lg font-medium pl-2 ${error ? "text-red" : ""}`}>
+		<div
+			className={`flex flex-col justify-start items-start ${
+				small ? "w-72" : "w-full"
+			}`}
+		>
+			<label
+				className={`${small ? "text-md" : "text-lg"} font-medium pl-2 ${
+					error ? "text-red" : ""
+				}`}
+			>
 				{label}
 			</label>
 			<div
-				className={`p-2 flex flex-row justify-between items-center rounded-lg w-full border-2 ${
+				className={`${
+					small ? "p-1 h-[2.75rem]" : "p-2 h-[3.75rem]"
+				} flex flex-row justify-between items-center rounded-lg w-full border-2 ${
 					error
 						? "text-red border-red bg-white-2"
 						: formState !== FORM_STATES.EDITING
@@ -102,16 +114,25 @@ const EditInputField: React.FC<Props> = ({
 							setError(`Please provide a ${label.toLowerCase()}.`);
 						else setError(undefined);
 					}}
-					className="p-2 w-full text-lg text-inherit focus:outline-none bg-inherit rounded-lg"
-					disabled={noEdit || formState !== FORM_STATES.EDITING ? true : false}
+					className={`${
+						small ? "p-1 text-md" : "p-2 text-lg"
+					} w-full text-inherit focus:outline-none bg-inherit rounded-lg`}
+					disabled={noEdit || formState !== FORM_STATES.EDITING}
 				/>
 				{!noEdit &&
-					getButton(formState, () => transitionFormState(formState), error)}
+					getButton(
+						formState,
+						() => transitionFormState(formState),
+						small,
+						error
+					)}
 			</div>
 			{!noEdit && error ? (
-				<p className="text-md text-red pl-2">{error}</p>
+				<p className={`${small ? "text-sm" : "text-md"} text-red pl-2`}>
+					{error}
+				</p>
 			) : (
-				<p className="text-md text-white pl-2">.</p>
+				<p className={`${small ? "text-sm" : "text-md"} text-white pl-2`}>.</p>
 			)}
 		</div>
 	);
@@ -120,10 +141,12 @@ const EditInputField: React.FC<Props> = ({
 const getButton = (
 	formState: FORM_STATES,
 	onClick: () => void,
+	small?: boolean,
 	error?: string
 ): React.ReactNode => {
-	const baseStyle =
-		"flex justify-center items-center p-3 rounded-lg z-10 transition-all";
+	const baseStyle = `flex justify-center items-center p-3 z-10 transition-all ${
+		small ? "h-8 rounded-md" : "h-[2.75rem] rounded-lg"
+	}`;
 	switch (formState) {
 		case FORM_STATES.INITIAL:
 			return (

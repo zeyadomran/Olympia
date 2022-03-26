@@ -67,6 +67,9 @@ const generateRandomBookings = (
 	return result;
 };
 
+export const findClient = (id: number): Client | undefined =>
+	CLIENTS.find((client) => client.clientId === id);
+
 export const CLIENT: Client = {
 	clientId: 10001,
 	email: "bob@gmail.com",
@@ -80,6 +83,61 @@ export const CLIENT: Client = {
 	startDate: "2022-01-01",
 	endDate: "2022-12-31",
 };
+
+export const CLIENTS: Client[] = [
+	{
+		clientId: 10001,
+		email: "bob@gmail.com",
+		phoneNum: "4035551234",
+		dob: "2001-03-27",
+		firstName: "Bob",
+		lastName: "Smith",
+		sex: "M",
+		memberType: "YEAR_PASS",
+		price: 480.0,
+		startDate: "2022-01-01",
+		endDate: "2022-12-31",
+	},
+	{
+		clientId: 10002,
+		email: "jeff@gmail.com",
+		phoneNum: "4035551234",
+		dob: "2001-03-27",
+		firstName: "Jeff",
+		lastName: "XL",
+		sex: "M",
+		memberType: "YEAR_PASS",
+		price: 480.0,
+		startDate: "2022-01-01",
+		endDate: "2022-12-31",
+	},
+	{
+		clientId: 10003,
+		email: "john@gmail.com",
+		phoneNum: "4035551234",
+		dob: "2001-03-27",
+		firstName: "John",
+		lastName: "Wick",
+		sex: "M",
+		memberType: "YEAR_PASS",
+		price: 480.0,
+		startDate: "2022-01-01",
+		endDate: "2022-12-31",
+	},
+	{
+		clientId: 10004,
+		email: "mike@gmail.com",
+		phoneNum: "4035551234",
+		dob: "2001-03-27",
+		firstName: "Mike",
+		lastName: "Oxemall",
+		sex: "M",
+		memberType: "YEAR_PASS",
+		price: 480.0,
+		startDate: "2022-01-01",
+		endDate: "2022-12-31",
+	},
+];
 
 export const EMPLOYEE: Employee = {
 	eId: 10001,

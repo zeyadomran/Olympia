@@ -3,9 +3,9 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { CgGym, CgProfile } from "react-icons/cg";
+import { BiWrench } from "react-icons/bi";
 import {
 	MdOutlineHotelClass,
-	MdOutlineReport,
 	MdOutlinePermContactCalendar,
 	MdManageSearch,
 } from "react-icons/md";
@@ -56,14 +56,14 @@ const Dashboard: NextPage = () => {
 							icon={<MdOutlineHotelClass className="w-1/2 h-1/2" />}
 						/>
 						<DashButton
+							title="Manage Branch"
+							href="/employee/branch"
+							icon={<BiWrench className="w-1/2 h-1/2" />}
+						/>
+						<DashButton
 							title="Manage Equipment"
 							href="/employee/equipment"
 							icon={<CgGym className="w-1/2 h-1/2" />}
-						/>
-						<DashButton
-							title="Handle Reports"
-							href="/employee/reports"
-							icon={<MdOutlineReport className="w-1/2 h-1/2" />}
 						/>
 					</div>
 				</div>
