@@ -1540,7 +1540,7 @@ def getWeekBookingsFromBranch(bId):
 
             slots = cursor.fetchall() # all timeslots in the next 7 days
 
-            cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking, TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking, COUNT(*) as count FROM time_books WHERE branchId = 1 AND dateOfBooking >= "2022-03-26" AND dateOfBooking < "2022-04-02" GROUP BY dateOfBooking,timeOfBooking;')
+            cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking, TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking, COUNT(*) as count FROM time_books WHERE branchId = {bId} AND dateOfBooking >= "{today}" AND dateOfBooking < "{sevenDays}" GROUP BY dateOfBooking,timeOfBooking;')
 
             booked = cursor.fetchall() # How many each of those time slots has filled
 
@@ -1591,6 +1591,109 @@ def getWeekBookingsFromBranch(bId):
     except Exception as e:
             print(e)
     finally:
+            cursor.close()
+            conn.close()
+
+
+#Client books or unbooks a timeSlot
+@app.route('/braches/<int:bId>/bookTimeSlot',methods=['POST','DELETE'])
+def bookTimeSlot(bId):
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _date = _json['date']
+        _time = _json['time']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+    if(request.method == 'POST'): #Book Timeslot
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'SELECT timeSlotCapacity FROM Gym_Branch WHERE branchId = {bId};')
+
+            capD = cursor.fetchone() # the capacity of the timeSlot from the gym branch
+            cap = capD['timeSlotCapacity']
+
+            result = cursor.execute(f'SELECT COUNT(*) as count FROM time_books WHERE branchId = {bId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}" GROUP BY dateOfBooking,timeOfBooking;')
+
+            if(result <= 0): #No one has booked the timeSlot
+                c = 0
+            else: #Get number of people who have booked
+                c = cursor.fetchone()['count']
+
+            #Ensures booking does not exceed capacity
+            if(c+1 > cap):
+                m = {"bookingSuccess" : False}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+
+            #Books
+            cursor.execute(f'insert into time_books (clientId,branchId,dateOfBooking,timeOfBooking) values ({cId},{bId},"{_date}","{_time}");')
+            conn.commit()
+
+            m = {"bookingSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"bookingSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #DELETE: unbook timeSlot
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM time_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}";')
+            conn.commit()
+
+            m = {"unBookingSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"unBookingSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
             cursor.close()
             conn.close()
 
