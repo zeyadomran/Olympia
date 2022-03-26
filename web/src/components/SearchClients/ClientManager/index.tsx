@@ -1,9 +1,7 @@
-import { useContext } from "react";
 import Client from "../../../types/Client";
 import { formatMembershipType } from "../../../utils/format";
 import { validateEmail, validatePhoneNumber } from "../../../utils/validate";
 import EditInputField from "../../EditInputField";
-import SearchClientsContext from "../SearchClientsContext";
 
 interface Props {
 	client: Client;

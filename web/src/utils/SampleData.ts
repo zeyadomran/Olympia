@@ -173,6 +173,14 @@ export const SERVICES: Item[] = [
 	{ id: "4", name: "Deadlift with Zeyad" },
 ];
 
+export const findService = (id: string) => {
+	return SERVICES.find((service) => service.id === id)?.name;
+};
+
+export const findBranch = (id: string) => {
+	return BRANCHES.find((branch) => branch.id === id)?.name;
+};
+
 export const EQUIPMENT: Item[] = [
 	{ id: "1", name: "Bench Press" },
 	{ id: "2", name: "Squat Rack" },

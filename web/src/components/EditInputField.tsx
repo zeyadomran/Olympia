@@ -81,13 +81,9 @@ const EditInputField: React.FC<Props> = ({
 	};
 
 	return (
-		<div
-			className={`flex flex-col justify-start items-start ${
-				small ? "w-72" : "w-full"
-			}`}
-		>
+		<div className={`flex flex-col justify-start items-start w-full`}>
 			<label
-				className={`${small ? "text-md" : "text-lg"} font-medium pl-2 ${
+				className={`${small ? "text-sm" : "text-md"} ${
 					error ? "text-red" : ""
 				}`}
 			>
@@ -115,7 +111,7 @@ const EditInputField: React.FC<Props> = ({
 						else setError(undefined);
 					}}
 					className={`${
-						small ? "p-1 text-md" : "p-2 text-lg"
+						small ? "p-1 text-sm" : "p-2 text-md"
 					} w-full text-inherit focus:outline-none bg-inherit rounded-lg`}
 					disabled={noEdit || formState !== FORM_STATES.EDITING}
 				/>
