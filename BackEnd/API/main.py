@@ -1900,7 +1900,7 @@ def getAllServicesFromBranch(bId):
             conn.close()
 
 
-#Get all Services From Branch
+#Get Service From Branch
 @app.route('/branches/<int:bId>/getServices/<int:sId>',methods=['GET'])
 def getAServiceFromBranch(bId,sId):
 
@@ -1965,7 +1965,109 @@ def getAServiceFromBranch(bId,sId):
             cursor.close()
             conn.close()
 
+#Add Service to Branch
+@app.route('/branches/<int:bId>/addService',methods=['POST'])
+def AddAServiceToBranch(bId):
 
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _name = _json['serviceName']
+        _time = _json['timeOfService']
+        _endTime = _json['timeEnds']
+        _days = _json['daysOfService']
+        _cap = _json['capacity']
+        _desc = _json['description']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(f'INSERT INTO service (branchId,serviceName,timeOfService,timeEnds,daysOfService,capacity,description) values ({bId},"{_name}","{_time}","{_endTime}","{_days}",{_cap},"{_desc}");')
+            conn.commit()
+
+            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,TIME_FORMAT(timeEnds, "%H:%i") as timeEnds,daysOfService,capacity,description FROM service WHERE branchId = {bId} AND serviceId = LAST_INSERT_ID();')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    servReturn = cursor.fetchone()
+                    response = jsonify(servReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+#Remove a Service from a Branch
+@app.route('/branches/<int:bId>/removeService/<int:sId>',methods=['DELETE'])
+def RemoveServiceFromBranch(bId,sId):
+
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            cursor.execute(f'DELETE FROM service WHERE branchId = {bId} AND serviceId = {sId};')
+            conn.commit()
+
+
+            m = {'removalSuccess' : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+    except Exception as e:
+            print(e)
+            m = {'removalSuccess' : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+    finally:
+            cursor.close()
+            conn.close()
 
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
