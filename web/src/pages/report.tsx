@@ -2,11 +2,12 @@ import { NextPage } from "next";
 import Head from "next/head";
 import ReportForm from "../components/ReportForm";
 import SubNavbar from "../components/SubNavbar";
+import Item from "../types/Item";
 import { BRANCHES, EQUIPMENT } from "../utils/SampleData";
 
 interface Props {
-	branches: { id: string; name: string }[];
-	equipment: { id: string; name: string }[];
+	branches: Item[];
+	equipment: Item[];
 }
 
 const Report: NextPage<Props> = ({ branches, equipment }) => {

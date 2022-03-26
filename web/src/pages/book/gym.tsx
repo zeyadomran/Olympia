@@ -5,6 +5,7 @@ import Selector from "../../components/Selector";
 import SubNavbar from "../../components/SubNavbar";
 import TimeTable from "../../components/TimeTable";
 import { Date } from "../../types/DateTypes";
+import Item from "../../types/Item";
 import { formatAndMergeTimeslots } from "../../utils/format";
 import {
 	BRANCHES,
@@ -14,7 +15,7 @@ import {
 
 interface Props {
 	available: Date[];
-	branches: { id: string; name: string }[];
+	branches: Item[];
 }
 
 const Gym: NextPage<Props> = ({ available, branches }) => {

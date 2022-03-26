@@ -6,10 +6,11 @@ import { GoIssueOpened } from "react-icons/go";
 import Selector from "../Selector";
 import InputField from "./InputField";
 import SubmitButton from "./SubmitButton";
+import Item from "../../types/Item";
 
 interface Props {
-	branches: { id: string; name: string }[];
-	equipment: { id: string; name: string }[];
+	branches: Item[];
+	equipment: Item[];
 }
 
 const ReportForm: React.FC<Props> = ({ branches, equipment }) => {

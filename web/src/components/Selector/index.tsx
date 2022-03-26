@@ -1,9 +1,10 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { NativeSelect } from "@mantine/core";
 import { formatSentenceCase } from "../../utils/format";
+import Item from "../../types/Item";
 
 interface Props {
-	values: { id: string; name: string }[];
+	values: Item[];
 	valueId: string | undefined;
 	setValueId: Dispatch<SetStateAction<string | undefined>>;
 	name: string;

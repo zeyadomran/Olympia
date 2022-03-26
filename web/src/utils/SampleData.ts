@@ -1,6 +1,7 @@
 import Client from "../types/Client";
 import { ClientBooking, Date, Timeslot } from "../types/DateTypes";
 import Employee from "../types/Employee";
+import Item from "../types/Item";
 
 const dates: string[] = [
 	"2022-03-24",
@@ -91,21 +92,21 @@ export const EMPLOYEE: Employee = {
 	sex: "M",
 };
 
-export const BRANCHES: { id: string; name: string }[] = [
+export const BRANCHES: Item[] = [
 	{ id: "1", name: "University District" },
 	{ id: "2", name: "Stephen Ave" },
 	{ id: "3", name: "Brentwood" },
 	{ id: "4", name: "Citadel" },
 ];
 
-export const SERVICES: { id: string; name: string }[] = [
+export const SERVICES: Item[] = [
 	{ id: "1", name: "Swimming Pool" },
 	{ id: "2", name: "Sauna" },
 	{ id: "3", name: "Cardio with Chloe" },
 	{ id: "4", name: "Deadlift with Zeyad" },
 ];
 
-export const EQUIPMENT: { id: string; name: string }[] = [
+export const EQUIPMENT: Item[] = [
 	{ id: "1", name: "Bench Press" },
 	{ id: "2", name: "Squat Rack" },
 	{ id: "3", name: "Lat Pulldown" },
