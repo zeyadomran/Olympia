@@ -16,6 +16,7 @@ import { useState } from "react";
 const Login: React.FC = () => {
 	const [value, setValue] = useState("");
 	const [error, setError] = useState("");
+	const [success, setSuccess] = useState(false);
 
 	return (
 		<div className="w-full flex justify-center items-center">
@@ -55,6 +56,7 @@ const Login: React.FC = () => {
 						setSubmitting(true);
 						setTimeout(() => {
 							setSubmitting(false);
+							setSuccess(true);
 							setValue("");
 							resetForm();
 						}, 3000);
@@ -122,7 +124,11 @@ const Login: React.FC = () => {
 							</div>
 							<div className="w-[36rem] flex justify-end items-center">
 								<div className="w-[16.5rem]">
-									<SubmitButton isSubmitting={props.isSubmitting}>
+									<SubmitButton
+										isSubmitting={props.isSubmitting}
+										success={success}
+										setSuccess={setSuccess}
+									>
 										Submit
 									</SubmitButton>
 								</div>
