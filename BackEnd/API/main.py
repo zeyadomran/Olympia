@@ -1697,7 +1697,94 @@ def bookTimeSlot(bId):
             cursor.close()
             conn.close()
 
+#Employee Adds or Removes Timeslot
+@app.route('/braches/<int:bId>/addTimeSlot',methods=['POST','DELETE'])
+def addRemoveTimeSlot(bId):
+    ejwt = request.cookies.get("EJWT",None)
 
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _date = _json['date']
+        _time = _json['time']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+    if(request.method == 'POST'): #Add Timeslot
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+
+            result = cursor.execute(f'SELECT * FROM day_schedule WHERE branchId = {bId} AND dateOfBooking = "{_date}";')
+
+            if(result == 0): #No day_schedule exits
+                cursor.execute(f'INSERT INTO day_schedule (branchId,dateOfBooking) values ({bId},"{_date}");')
+                conn.commit()
+
+            cursor.execute(f'INSERT INTO time_slot (branchId,dateOfBooking,timeOfBooking) values ({bId},"{_date}","{_time}");')
+            conn.commit()
+
+
+
+            m = {"addingSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"addingSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #DELETE timeSlot
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM time_slot WHERE branchId = {bId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}";')
+            conn.commit()
+
+            m = {"removalSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"removalSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
 
 
 #Occurs when request cannot be satisfied
