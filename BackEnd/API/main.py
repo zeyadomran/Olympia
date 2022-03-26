@@ -1478,7 +1478,7 @@ def getReportsFromClient():
 
 
 #Get all bookings within a week from a branch
-@app.route('/braches/<int:bId>/getBookings',methods=['GET'])
+@app.route('/branches/<int:bId>/getBookings',methods=['GET'])
 def getWeekBookingsFromBranch(bId):
     #Permissions: Either any valid EJWT or CJWT
     ejwt = request.cookies.get("EJWT",None)
@@ -1596,7 +1596,7 @@ def getWeekBookingsFromBranch(bId):
 
 
 #Client books or unbooks a timeSlot
-@app.route('/braches/<int:bId>/bookTimeSlot',methods=['POST','DELETE'])
+@app.route('/branches/<int:bId>/bookTimeSlot',methods=['POST','DELETE'])
 def bookTimeSlot(bId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -1698,7 +1698,7 @@ def bookTimeSlot(bId):
             conn.close()
 
 #Employee Adds or Removes Timeslot
-@app.route('/braches/<int:bId>/addTimeSlot',methods=['POST','DELETE'])
+@app.route('/branches/<int:bId>/addTimeSlot',methods=['POST','DELETE'])
 def addRemoveTimeSlot(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -1788,7 +1788,7 @@ def addRemoveTimeSlot(bId):
 
 
 #Get all bookings that the CJWT has booked from that gymBranch
-@app.route('/braches/<int:bId>/getBooked',methods=['GET'])
+@app.route('/branches/<int:bId>/getBooked',methods=['GET'])
 def getClientBookingsFromBranch(bId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -1835,8 +1835,8 @@ def getClientBookingsFromBranch(bId):
 
 
 #Get all Services From Branch
-@app.route('/braches/<int: gymId>/getServices',methods=['GET'])
-def getAllEquipFromBranch(id):
+@app.route('/branches/<int:bId>/getServices',methods=['GET'])
+def getAllServicesFromBranch(bId):
 
     #Permissions: Either any valid EJWT or CJWT
     ejwt = request.cookies.get("EJWT",None)
@@ -1882,7 +1882,7 @@ def getAllEquipFromBranch(id):
     try:
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
-            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,daysOfService,capacity,description FROM service WHERE branchId = {id};')
+            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,TIME_FORMAT(timeEnds, "%H:%i") as timeEnds,daysOfService,capacity,description FROM service WHERE branchId = {bId};')
 
             if (result <= 0):
                     print("EMPTY EMPTY") #This occurs when response comes back empty
@@ -1900,6 +1900,70 @@ def getAllEquipFromBranch(id):
             conn.close()
 
 
+#Get all Services From Branch
+@app.route('/branches/<int:bId>/getServices/<int:sId>',methods=['GET'])
+def getAServiceFromBranch(bId,sId):
+
+    #Permissions: Either any valid EJWT or CJWT
+    ejwt = request.cookies.get("EJWT",None)
+    cjwt = request.cookies.get("CJWT",None)
+
+    eFlag = False
+    cFlag = False
+
+    if(ejwt == None and cjwt == None):
+        return authenticationError()
+
+    if(ejwt != None):
+        eFlag = True
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            eFlag = False
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False):
+            eFlag = False
+
+    elif (eFlag == False and cjwt != None):
+        cFlag = True
+        try:
+            cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            cFlag = False
+
+        #a valid ejwt was given
+        #checks whether this client is loggedIn
+        if(cj["loggedIn"] == False):
+            eFlag = False
+    else:
+        return authenticationError()
+
+    if(cFlag == False and eFlag == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,TIME_FORMAT(timeEnds, "%H:%i") as timeEnds,daysOfService,capacity,description FROM service WHERE branchId = {bId} AND serviceId = {sId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    equipReturn = cursor.fetchone()
+                    response = jsonify(equipReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
 
 
 
