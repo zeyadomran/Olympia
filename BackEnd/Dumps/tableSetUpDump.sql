@@ -307,6 +307,7 @@ CREATE TABLE `service` (
   `daysOfService` varchar(255) DEFAULT NULL,
   `capacity` int DEFAULT NULL,
   `description` text,
+  `duration` float,
   PRIMARY KEY (`serviceId`,`branchId`),
   KEY `branchId` (`branchId`),
   CONSTRAINT `service_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)

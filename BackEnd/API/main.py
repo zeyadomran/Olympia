@@ -1834,6 +1834,74 @@ def getClientBookingsFromBranch(bId):
             conn.close()
 
 
+#Get all Services From Branch
+@app.route('/braches/<int: gymId>/getServices',methods=['GET'])
+def getAllEquipFromBranch(id):
+
+    #Permissions: Either any valid EJWT or CJWT
+    ejwt = request.cookies.get("EJWT",None)
+    cjwt = request.cookies.get("CJWT",None)
+
+    eFlag = False
+    cFlag = False
+
+    if(ejwt == None and cjwt == None):
+        return authenticationError()
+
+    if(ejwt != None):
+        eFlag = True
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            eFlag = False
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False):
+            eFlag = False
+
+    elif (eFlag == False and cjwt != None):
+        cFlag = True
+        try:
+            cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            cFlag = False
+
+        #a valid ejwt was given
+        #checks whether this client is loggedIn
+        if(cj["loggedIn"] == False):
+            eFlag = False
+    else:
+        return authenticationError()
+
+    if(cFlag == False and eFlag == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,daysOfService,capacity,description FROM service WHERE branchId = {id};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    equipReturn = cursor.fetchall()
+                    response = jsonify(equipReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+
+
+
 
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
