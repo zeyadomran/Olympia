@@ -17,6 +17,7 @@ from flask import jsonify
 from flask import flash, request
 import jwt
 import bcrypt
+import datetime
 
 secret = "!!1234OlympiaGymDatabase!5678!"
 salt = b'$2b$12$bHop6pQFFJBG86NnXZUg4.'
@@ -847,8 +848,13 @@ def getAllBranches():
             if(result <= 0):
                 return serverError()
 
-
             r = cursor.fetchone()
+            bId = r["branchId"]
+
+            #Adds two storage types
+            cursor.execute(f'insert into gym_storage values ({bId},"Floor");')
+            cursor.execute(f'insert into gym_storage values ({bId},"Storage");')
+            conn.commit()
 
             response = jsonify(r)
             response.status_code = 200
@@ -867,7 +873,7 @@ def getAllBranches():
 @app.route('/branches/<int:bId>',methods=['GET'])
 def getABranch(bId):
 
-        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        #Permissions: Either any valid EJWT or CJWT
         ejwt = request.cookies.get("EJWT",None)
         cjwt = request.cookies.get("CJWT",None)
 
@@ -927,6 +933,549 @@ def getABranch(bId):
         finally:
                 cursor.close()
                 conn.close()
+
+
+#Get all Equipment From Branch
+@app.route('/branches/<int:id>/equipment',methods=['GET','POST'])
+def getAllEquipFromBranch(id):
+
+        if(request.method == 'GET'):
+            #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+            ejwt = request.cookies.get("EJWT",None)
+            cjwt = request.cookies.get("CJWT",None)
+
+            eFlag = False
+            cFlag = False
+
+            if(ejwt == None and cjwt == None):
+                return authenticationError()
+
+            if(ejwt != None):
+                eFlag = True
+                try:
+                    ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+                except:
+                    eFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
+
+            elif (eFlag == False and cjwt != None):
+                cFlag = True
+                try:
+                    cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+                except:
+                    cFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(cj["loggedIn"] == False):
+                    eFlag = False
+            else:
+                return authenticationError()
+
+            if(cFlag == False and eFlag == False):
+                return authenticationError()
+
+            #Permissions are granted
+
+            try:
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    result = cursor.execute(f'SELECT * FROM equipment WHERE branchId = {id};')
+
+                    if (result <= 0):
+                            print("EMPTY EMPTY") #This occurs when response comes back empty
+                            return not_found()
+                    else:
+                            equipReturn = cursor.fetchall()
+                            response = jsonify(equipReturn)
+                            response.status_code = 200
+                            return response
+
+            except Exception as e:
+                    print(e)
+            finally:
+                    cursor.close()
+                    conn.close()
+
+
+        else: #POST
+            ejwt = request.cookies.get("EJWT",None)
+
+            if(ejwt == None):
+                return authenticationError()
+
+            try:
+                j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                return authenticationError()
+
+            #a valid ejwt was given
+            #checks whether this employee has permission or not
+            if(j["loggedIn"] == False or j["eType"] != "Admin"):
+                return authenticationError()
+
+            #Permissions are granted
+
+            #Gets required attributes from JSON body
+            try:
+                _json = request.json
+                _name = _json['eName']
+                _rps = _json['repairStatus']
+                _date = _json['purchaseDate']
+                _storageType = _json['storageType']
+                _bId = id #from endpoint
+            except:
+                return badRequest()
+
+            #We have all the attributes
+
+            try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                sqlQuery = 'INSERT INTO equipment (eName,repairStatus,purchaseDate,branchId,storageType) values (%s,%s,%s,%s,%s);'
+                bindData = (_name, _rps, _date,_bId,_storageType)
+
+                cursor.execute(sqlQuery, bindData)
+                conn.commit()
+
+                result = cursor.execute('SELECT * FROM equipment WHERE LAST_INSERT_ID() = eId;')
+
+                if(result <= 0):
+                    return serverError()
+
+
+                r = cursor.fetchone()
+
+                response = jsonify(r)
+                response.status_code = 200
+                return response
+
+            except:
+                return badRequest()
+            finally:
+                conn.close()
+                cursor.close()
+
+
+#Get/Delete single Equipment
+@app.route('/equipment/<int:eId>',methods=['GET','DELETE'])
+def getEquipDeleteEquip(eId):
+
+    if(request.method == 'GET'):
+        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        ejwt = request.cookies.get("EJWT",None)
+        cjwt = request.cookies.get("CJWT",None)
+
+        eFlag = False
+        cFlag = False
+
+        if(ejwt == None and cjwt == None):
+            return authenticationError()
+
+        if(ejwt != None):
+            eFlag = True
+            try:
+                ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                eFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
+
+        elif (eFlag == False and cjwt != None):
+            cFlag = True
+            try:
+                cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+            except:
+                cFlag = False
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(cj["loggedIn"] == False):
+                eFlag = False
+        else:
+            return authenticationError()
+
+        if(cFlag == False and eFlag == False):
+            return authenticationError()
+
+        #Permissions are granted
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                result = cursor.execute(f'SELECT * FROM equipment WHERE eId = {eId};')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        equipReturn = cursor.fetchone()
+                        response = jsonify(equipReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+        finally:
+                cursor.close()
+                conn.close()
+    else: #DELETE
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee has permission or not
+        if(j["loggedIn"] == False or j["eType"] != "Admin"):
+            return authenticationError()
+
+        #Permissions are granted
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+                cursor.execute(f'DELETE FROM equipment WHERE eId = {eId};')
+                conn.commit()
+
+                m = {"deleteSuccess" : True}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+
+        except Exception as e:
+                print(e)
+                m = {"deleteSuccess" : False}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+        finally:
+                cursor.close()
+                conn.close()
+
+
+#Move single Equipment from Floor to storage
+@app.route('/equipment/<int:eId>/move',methods=['PUT'])
+def moveEquipment(eId):
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee has permission or not
+    if(j["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            result = cursor.execute(f'SELECT storageType FROM equipment WHERE eId = {eId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+
+            equipReturn = cursor.fetchone() #Gets storageType
+            newType = ""
+            if(equipReturn['storageType'] == "Storage"):
+                newType = "Floor"
+            else:
+                newType = "Storage"
+
+            cursor.execute(f'UPDATE equipment SET storageType = "{newType}" WHERE eId = {eId};')
+            conn.commit()
+
+            m = {"switchSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+
+
+    except Exception as e:
+            print(e)
+            m = {"switchSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+    finally:
+            cursor.close()
+            conn.close()
+
+
+
+#Client Reports Equip or Deletes a report
+@app.route('/equipment/<int:eId>/report',methods=['POST','DELETE'])
+def reportEquipment(eId):
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    if(request.method == 'POST'): #Add report
+
+        #Gets required attributes from JSON body
+        try:
+            _json = request.json
+            _issue = _json['issue']
+        except:
+            return badRequest()
+
+
+        #We have all the attributes
+
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+
+            today = str(datetime.date.today().strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+
+            cursor.execute(f'insert into reports (eId,clientId,issue,dateOfReport,curStatus) values ({eId},{cId},"{_issue}","{today}",true);')
+            conn.commit()
+
+            m = {"reportSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"reportSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #Delete Report
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM reports WHERE eId = {eId} AND clientId = {cId};')
+            conn.commit()
+
+            m = {"deleteReportSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"deleteReportSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+
+
+#employee Switches the status of a report
+@app.route('/equipment/<int:eId>/report/<int:cId>/switch',methods=['POST'])
+def switchReport(eId,cId):
+
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        j = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee has permission or not
+    if(j["loggedIn"] == False or j["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            result = cursor.execute(f'SELECT curStatus FROM reports WHERE eId = {eId} AND clientId = {cId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+
+            reportReturn = cursor.fetchone() #Gets storageType
+
+            newStat = False
+
+            if(reportReturn['curStatus'] == False):
+                newStat = True
+
+            cursor.execute(f'UPDATE reports SET curStatus = {newStat} WHERE eId = {eId} AND clientId = {cId};')
+            conn.commit()
+
+            m = {"switchReportSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+    except Exception as e:
+            print(e)
+            m = {"switchReportSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+    finally:
+            cursor.close()
+            conn.close()
+
+#Get all reports from a branch
+@app.route('/branches/<int:bId>/equipment/reports',methods=['GET'])
+def getReportsFromBranch(bId):
+    #Permissions: Either any valid EJWT or CJWT
+    ejwt = request.cookies.get("EJWT",None)
+    cjwt = request.cookies.get("CJWT",None)
+
+    eFlag = False
+    cFlag = False
+
+    if(ejwt == None and cjwt == None):
+        return authenticationError()
+
+    if(ejwt != None):
+        eFlag = True
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            eFlag = False
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False):
+            eFlag = False
+
+    elif (eFlag == False and cjwt != None):
+        cFlag = True
+        try:
+            cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+        except:
+            cFlag = False
+
+        #a valid ejwt was given
+        #checks whether this client is loggedIn
+        if(cj["loggedIn"] == False):
+            eFlag = False
+    else:
+        return authenticationError()
+
+    if(cFlag == False and eFlag == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            result = cursor.execute(f'SELECT r.eId,r.clientId,r.dateOfReport,r.issue,r.curStatus FROM reports as r, equipment as e WHERE e.eId = r.eId AND e.branchId = {bId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    reportReturn = cursor.fetchall()
+                    response = jsonify(reportReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+#Get All Equipment Reports From Logged in Client
+@app.route('/client/equipment/reports',methods=['GET'])
+def getReportsFromClient():
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            result = cursor.execute(f'SELECT * FROM reports WHERE clientId = {cId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    reportReturn = cursor.fetchall()
+                    response = jsonify(reportReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+
+
 
 
 
