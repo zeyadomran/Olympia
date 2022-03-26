@@ -1147,6 +1147,12 @@ def getEquipDeleteEquip(eId):
         try:
                 conn = mysql.connect()
                 cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                #To preserve integrity, delete all reports where equipment is mentioned
+                cursor.execute(f'DELETE FROM reports WHERE eId = {eId};')
+                conn.commit()
+
+                #Delete equipment
                 cursor.execute(f'DELETE FROM equipment WHERE eId = {eId};')
                 conn.commit()
 
@@ -1767,6 +1773,10 @@ def addRemoveTimeSlot(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
+            #To preserve integrity, deletes bookings associated with timeslot
+            cursor.execute(f'DELETE FROM time_books WHERE branchId = {bId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}";')
+            conn.commit()
+
             cursor.execute(f'DELETE FROM time_slot WHERE branchId = {bId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}";')
             conn.commit()
 
@@ -2050,6 +2060,11 @@ def RemoveServiceFromBranch(bId,sId):
     try:
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            #Deletes any bookings to preserve integrity
+            cursor.execute(f'DELETE FROM service_books WHERE branchId = {bId} AND serviceId = {sId};')
+            conn.commit()
+
             cursor.execute(f'DELETE FROM service WHERE branchId = {bId} AND serviceId = {sId};')
             conn.commit()
 
@@ -2068,6 +2083,52 @@ def RemoveServiceFromBranch(bId,sId):
     finally:
             cursor.close()
             conn.close()
+
+
+#Get all services that the CJWT has booked from that gymBranch
+@app.route('/branches/<int:bId>/getServicesBooked',methods=['GET'])
+def getClientServiceBookingsFromBranch(bId):
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+            result = cursor.execute(f'SELECT branchId,serviceId,clientId,DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking FROM service_books WHERE branchId = {bId} AND clientId = {cId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    equipReturn = cursor.fetchall()
+                    response = jsonify(equipReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+    finally:
+            cursor.close()
+            conn.close()
+
+
+
 
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
