@@ -356,7 +356,7 @@ def EmpByID(id):
                     if(type(d[k]) == str):
                         query = query + k + ' = "' + d[k] + '", '
                     else:
-                        query = query + k + ' = ' + d[k] + ', '
+                        query = query + k + ' = ' + str(d[k]) + ', '
 
                 query = query[0:-2] #Removes last comma and space
 
@@ -856,7 +856,7 @@ def clientByID(id):
                 if(type(d[k]) == str):
                     query = query + k + ' = "' + d[k] + '", '
                 else:
-                    query = query + k + ' = ' + d[k] + ', '
+                    query = query + k + ' = ' + str(d[k]) + ', '
 
             query = query[0:-2] #Removes last comma and space
 
@@ -1339,6 +1339,91 @@ def BranchbyID(bId):
                 cursor.close()
                 conn.close()
 
+    else: #PATCH update some Values of Branch
+        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn
+        if(ej["loggedIn"] == False or ej['eType'] != "Admin"):
+            return authenticationError()
+
+
+
+        #Permissions are granted
+
+
+        #Ensures a JSON body was passed
+        try:
+            _json = request.json
+        except:
+            return badRequest()
+
+
+        #Tries to get all possible update values (cannot update id)
+
+        d = dict() #dictionary to be later used with SQL Key = attr Value = update
+
+        if('bName' in _json):
+            d['bName'] = _json['bName']
+        if('bAddress' in _json):
+            d['bAddress'] = _json['bAddress']
+        if('timeSlotCapacity' in _json):
+            d['timeSlotCapacity'] = _json['timeSlotCapacity']
+
+        #No relevent values were passed
+        if(len(d) == 0):
+            return badRequest()
+
+        #Now that we have all values, arrange sqlQuery
+
+
+        query = "UPDATE gym_branch SET " #start of query
+
+        for k in d:
+            if(type(d[k]) == str):
+                query = query + k + ' = "' + d[k] + '", '
+            else:
+                query = query + k + ' = ' + str(d[k]) + ', '
+
+        query = query[0:-2] #Removes last comma and space
+
+        query = query + f' WHERE branchId = {bId};'
+
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                #Updates Client
+                cursor.execute(query)
+                conn.commit()
+
+                #Fetches update client
+                result = cursor.execute(f'SELECT * FROM gym_branch WHERE branchId = {bId};')
+
+                if (result <= 0):
+                        print("EMPTY EMPTY") #This occurs when response comes back empty
+                        return not_found()
+                else:
+                        empReturn = cursor.fetchone()
+                        response = jsonify(empReturn)
+                        response.status_code = 200
+                        return response
+
+        except Exception as e:
+                print(e)
+
+        finally:
+                cursor.close()
+                conn.close()
 
 
 
@@ -2491,6 +2576,99 @@ def RemoveServiceFromBranch(bId,sId):
             cursor.close()
             conn.close()
 
+#Update a Service from a Branch
+@app.route('/branches/<int:bId>/updateService/<int:sId>',methods=['PATCH'])
+def UpdateServiceInBranch(bId,sId):
+
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+
+    #Ensures a JSON body was passed
+    try:
+        _json = request.json
+    except:
+        return badRequest()
+
+
+    #Tries to get all possible update values (cannot update id)
+
+    d = dict() #dictionary to be later used with SQL Key = attr Value = update
+
+    if('serviceName' in _json):
+        d['serviceName'] = _json['serviceName']
+    if('timeOfService' in _json):
+        d['timeOfService'] = _json['timeOfService']
+    if('daysOfService' in _json):
+        d['daysOfService'] = _json['daysOfService']
+    if('capacity' in _json):
+        d['capacity'] = _json['capacity']
+    if('description' in _json):
+        d['description'] = _json['description']
+    if('timeEnds' in _json):
+        d['timeEnds'] = _json['timeEnds']
+
+    #No relevent values were passed
+    if(len(d) == 0):
+        return badRequest()
+
+    #Now that we have all values, arrange sqlQuery
+
+
+
+    query = "UPDATE service SET " #start of query
+
+    for k in d:
+        if(type(d[k]) == str):
+            query = query + k + ' = "' + d[k] + '", '
+        else:
+            query = query + k + ' = ' + str(d[k]) + ', '
+
+    query = query[0:-2] #Removes last comma and space
+
+    query = query + f' WHERE branchId = {bId} AND serviceId = {sId};'
+
+    try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            #Updates Service
+            cursor.execute(query)
+            conn.commit()
+
+            #Fetches update client
+            result = cursor.execute(f'SELECT serviceId,branchId,serviceName,TIME_FORMAT(timeOfService, "%H:%i") as timeOfService,TIME_FORMAT(timeEnds, "%H:%i") as timeEnds,daysOfService,capacity,description FROM service WHERE branchId = {bId} AND serviceId = {sId};')
+
+            if (result <= 0):
+                    print("EMPTY EMPTY") #This occurs when response comes back empty
+                    return not_found()
+            else:
+                    serviceReturn = cursor.fetchone()
+                    response = jsonify(serviceReturn)
+                    response.status_code = 200
+                    return response
+
+    except Exception as e:
+            print(e)
+
+    finally:
+            cursor.close()
+            conn.close()
+
 
 #Get all services that the CJWT has booked from that gymBranch
 @app.route('/branches/<int:bId>/getServicesBooked',methods=['GET'])
@@ -2718,6 +2896,7 @@ def addRemoveInstructs(bId):
         finally:
             cursor.close()
             conn.close()
+
 
 
 #Occurs when request cannot be satisfied
