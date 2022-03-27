@@ -2232,7 +2232,7 @@ def bookService(bId,sId):
 
 
 #Add or Remove Instructs relationship
-@app.route('/branches/<int:bID>/instructs',methods=['POST','DELETE'])
+@app.route('/branches/<int:bId>/instructs',methods=['POST','DELETE'])
 def addRemoveInstructs(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -2269,10 +2269,10 @@ def addRemoveInstructs(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            cursor.execute(f'insert into instructs (eId,serviceId) values ({eId},{cId},"{_issue}","{today}",true);')
+            cursor.execute(f'insert into instructs (eId,serviceId,branchId) values ({_eId},{_sId},{bId});')
             conn.commit()
 
-            m = {"reportSuccess" : True}
+            m = {"addSuccess" : True}
             response = jsonify(m)
             response.status_code = 200
             return response
@@ -2280,7 +2280,7 @@ def addRemoveInstructs(bId):
 
         except Exception as e:
             print(e)
-            m = {"reportSuccess" : False}
+            m = {"addSuccess" : False}
             response = jsonify(m)
             response.status_code = 200
             return response
@@ -2293,10 +2293,10 @@ def addRemoveInstructs(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            cursor.execute(f'DELETE FROM reports WHERE eId = {eId} AND clientId = {cId};')
+            cursor.execute(f'DELETE FROM instructs WHERE eId = {_eId} AND serviceId = {_sId} AND branchId = {bId};')
             conn.commit()
 
-            m = {"deleteReportSuccess" : True}
+            m = {"deleteSuccess" : True}
             response = jsonify(m)
             response.status_code = 200
             return response
@@ -2304,7 +2304,7 @@ def addRemoveInstructs(bId):
 
         except Exception as e:
             print(e)
-            m = {"deleteReportSuccess" : False}
+            m = {"deleteSuccess" : False}
             response = jsonify(m)
             response.status_code = 200
             return response
