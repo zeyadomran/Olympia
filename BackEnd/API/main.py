@@ -1684,7 +1684,7 @@ def bookTimeSlot(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            cursor.execute(f'DELETE FROM time_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}";')
+            cursor.execute(f'DELETE FROM time_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND timeOfBooking = "{_time}" AND branchId = {bId};')
             conn.commit()
 
             m = {"unBookingSuccess" : True}
@@ -2127,6 +2127,107 @@ def getClientServiceBookingsFromBranch(bId):
             cursor.close()
             conn.close()
 
+
+#Client books or unbooks a service
+@app.route('/branches/<int:bId>/bookService/<int:sId>',methods=['POST','DELETE'])
+def bookService(bId,sId):
+    cjwt = request.cookies.get("CJWT",None)
+
+    if(cjwt == None):
+        return authenticationError()
+
+    try:
+        cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(cj["loggedIn"] == False):
+        return authenticationError()
+
+    #Permissions are granted
+
+    cId = cj["clientId"] #Gets client Id
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _date = _json['date']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+    if(request.method == 'POST'): #Book Service
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'SELECT capacity FROM service WHERE serviceId = {sId} AND branchId = {bId};')
+
+            capD = cursor.fetchone() # the capacity of the service
+            cap = capD['capacity']
+
+            result = cursor.execute(f'SELECT COUNT(*) as count FROM service_books WHERE serviceId = {sId} AND dateOfBooking = "{_date}" AND branchId = {bId} GROUP BY dateOfBooking;')
+
+            if(result <= 0): #No one has booked the service on this date
+                c = 0
+            else: #Get number of people who have booked
+                c = cursor.fetchone()['count']
+
+            #Ensures booking does not exceed capacity
+            if(c+1 > cap):
+                m = {"bookingSuccess" : False}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+
+            #Books
+            cursor.execute(f'insert into service_books (clientId,branchId,dateOfBooking,serviceId) values ({cId},{bId},"{_date}",{sId});')
+            conn.commit()
+
+            m = {"bookingSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"bookingSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #DELETE: unbook service
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM service_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND serviceId = {cId} AND branchId = {bId};')
+            conn.commit()
+
+            m = {"unBookingSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"unBookingSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
 
 
 
