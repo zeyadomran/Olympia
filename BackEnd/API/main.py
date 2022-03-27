@@ -193,48 +193,99 @@ def eSignup():
 
 
 
-#Get employee by ID
-@app.route('/employee/<int:id>',methods=['GET'])
-def getOneEmp(id):
+#Employee by ID
+@app.route('/employee/<int:id>',methods=['GET','DELETE','PATCH'])
+def EmpByID(id):
 
-        #Permissions: Either valid EJWT matching the id requested or Admin EJWT
-        ejwt = request.cookies.get("EJWT",None)
+        if(request.method == 'GET'):
+            #Permissions: Either valid EJWT matching the id requested or Admin EJWT
+            ejwt = request.cookies.get("EJWT",None)
 
-        if(ejwt == None):
-            return authenticationError()
+            if(ejwt == None):
+                return authenticationError()
 
-        try:
-            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
-        except:
-            return authenticationError()
+            try:
+                ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                return authenticationError()
 
-        #a valid ejwt was given
-        #checks whether this employee is loggedIn and whether it has appropriate Permissions
-        if(ej["loggedIn"] == False or (ej["eId"] != id and ej["eType"] != "Admin")):
-            return authenticationError()
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn and whether it has appropriate Permissions
+            if(ej["loggedIn"] == False or (ej["eId"] != id and ej["eType"] != "Admin")):
+                return authenticationError()
 
 
-        #Permissions are granted
+            #Permissions are granted
 
-        try:
-                conn = mysql.connect()
-                cursor = conn.cursor(pymysql.cursors.DictCursor)
-                result = cursor.execute(f'SELECT eId,branchId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,eType FROM employee WHERE eId = {id};')
+            try:
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    result = cursor.execute(f'SELECT eId,branchId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,eType FROM employee WHERE eId = {id};')
 
-                if (result <= 0):
-                        print("EMPTY EMPTY") #This occurs when response comes back empty
-                        return not_found()
-                else:
-                        empReturn = cursor.fetchone()
-                        response = jsonify(empReturn)
-                        response.status_code = 200
-                        return response
+                    if (result <= 0):
+                            print("EMPTY EMPTY") #This occurs when response comes back empty
+                            return not_found()
+                    else:
+                            empReturn = cursor.fetchone()
+                            response = jsonify(empReturn)
+                            response.status_code = 200
+                            return response
 
-        except Exception as e:
-                print(e)
-        finally:
-                cursor.close()
-                conn.close()
+            except Exception as e:
+                    print(e)
+            finally:
+                    cursor.close()
+                    conn.close()
+
+        elif (request.method == 'DELETE'): #Delete Employee by id
+            #Permissions: ADMIN
+            ejwt = request.cookies.get("EJWT",None)
+
+            if(ejwt == None):
+                return authenticationError()
+
+            try:
+                ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+            except:
+                return authenticationError()
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn and if they are Admin
+            if(ej["loggedIn"] == False or ej["eType"] != "Admin" or ej['eId'] == id):
+                return authenticationError()
+
+
+            #Permissions are granted
+
+            try:
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                    #Deletes any assocation to preserve integrity
+                    cursor.execute(f'DELETE FROM instructs WHERE eId = {id};')
+
+                    cursor.execute(f'DELETE FROM manages WHERE eId = {id};')
+
+                    conn.commit()
+
+                    #Deletes Employee
+                    cursor.execute(f'DELETE FROM employee WHERE eId = {id};')
+                    conn.commit()
+
+                    m = {'deleteSuccess' : True}
+                    response = jsonify(m)
+                    response.status_code = 200
+                    return response
+
+            except Exception as e:
+                    print(e)
+                    m = {'deleteSuccess' : False}
+                    response = jsonify(m)
+                    response.status_code = 200
+                    return response
+            finally:
+                    cursor.close()
+                    conn.close()
 
 #Get all employees
 @app.route('/employee',methods=['GET'])
@@ -491,70 +542,125 @@ def cSignup():
     else:
         return not_found()
 
-#Get client by ID
-@app.route('/client/<int:id>',methods=['GET'])
-def getOneClient(id):
+#Client by ID
+@app.route('/client/<int:id>',methods=['GET','DELETE','PATCH'])
+def clientByID(id):
 
-        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
-        ejwt = request.cookies.get("EJWT",None)
-        cjwt = request.cookies.get("CJWT",None)
+        if(request.method == 'GET'): #GET client by ID
+            #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+            ejwt = request.cookies.get("EJWT",None)
+            cjwt = request.cookies.get("CJWT",None)
 
-        eFlag = False
-        cFlag = False
+            eFlag = False
+            cFlag = False
 
-        if(ejwt == None and cjwt == None):
-            return authenticationError()
+            if(ejwt == None and cjwt == None):
+                return authenticationError()
 
-        if(ejwt != None):
-            eFlag = True
+            if(ejwt != None):
+                eFlag = True
+                try:
+                    ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+                except:
+                    eFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
+
+            elif (eFlag == False and cjwt != None):
+                cFlag = True
+                try:
+                    cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+                except:
+                    cFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(cj["loggedIn"] == False or cj["clientId"] != id):
+                    eFlag = False
+            else:
+                return authenticationError()
+
+            if(cFlag == False and eFlag == False):
+                return authenticationError()
+
+            #Permissions are granted
+
+            try:
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+                    result = cursor.execute(f'SELECT clientId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,memberType,price,DATE_FORMAT(startDate,"%Y-%m-%d") as startDate,DATE_FORMAT(endDate,"%Y-%m-%d") as endDate FROM client WHERE clientId = {id};')
+
+                    if (result <= 0):
+                            print("EMPTY EMPTY") #This occurs when response comes back empty
+                            return not_found()
+                    else:
+                            clientReturn = cursor.fetchone()
+                            response = jsonify(clientReturn)
+                            response.status_code = 200
+                            return response
+
+            except Exception as e:
+                    print(e)
+            finally:
+                    cursor.close()
+                    conn.close()
+
+
+        elif (request.method == 'DELETE'): #Delete Client by id
+            #Permissions: ADMIN
+            ejwt = request.cookies.get("EJWT",None)
+
+            if(ejwt == None):
+                return authenticationError()
+
             try:
                 ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
             except:
-                eFlag = False
+                return authenticationError()
 
             #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(ej["loggedIn"] == False):
-                eFlag = False
+            #checks whether this employee is loggedIn and if they are Admin
+            if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+                return authenticationError()
 
-        elif (eFlag == False and cjwt != None):
-            cFlag = True
+
+            #Permissions are granted
             try:
-                cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
-            except:
-                cFlag = False
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(cj["loggedIn"] == False or cj["clientId"] != id):
-                eFlag = False
-        else:
-            return authenticationError()
+                    #Deletes any bookings/reports to preserve integrity
+                    cursor.execute(f'DELETE FROM service_books WHERE clientId = {id};')
 
-        if(cFlag == False and eFlag == False):
-            return authenticationError()
+                    cursor.execute(f'DELETE FROM time_books WHERE clientId = {id};')
 
-        #Permissions are granted
+                    cursor.execute(f'DELETE FROM reports WHERE clientId = {id};')
+                    conn.commit()
 
-        try:
-                conn = mysql.connect()
-                cursor = conn.cursor(pymysql.cursors.DictCursor)
-                result = cursor.execute(f'SELECT clientId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,memberType,price,DATE_FORMAT(startDate,"%Y-%m-%d") as startDate,DATE_FORMAT(endDate,"%Y-%m-%d") as endDate FROM client WHERE clientId = {id};')
+                    #Deletes Client
+                    cursor.execute(f'DELETE FROM client WHERE clientId = {id};')
+                    conn.commit()
 
-                if (result <= 0):
-                        print("EMPTY EMPTY") #This occurs when response comes back empty
-                        return not_found()
-                else:
-                        clientReturn = cursor.fetchone()
-                        response = jsonify(clientReturn)
-                        response.status_code = 200
-                        return response
+                    m = {'deleteSuccess' : True}
+                    response = jsonify(m)
+                    response.status_code = 200
+                    return response
 
-        except Exception as e:
-                print(e)
-        finally:
-                cursor.close()
-                conn.close()
+            except Exception as e:
+                    print(e)
+                    m = {'deleteSuccess' : False}
+                    response = jsonify(m)
+                    response.status_code = 200
+                    return response
+            finally:
+                    cursor.close()
+                    conn.close()
+
+
+
 
 #Get all clients
 @app.route('/client',methods=['GET'])
@@ -644,6 +750,12 @@ def getClientCJWT():
         finally:
                 cursor.close()
                 conn.close()
+
+
+
+
+
+
 
 
 
@@ -869,10 +981,11 @@ def getAllBranches():
 
 
 
-#Gets one gymBranch from id
-@app.route('/branches/<int:bId>',methods=['GET'])
-def getABranch(bId):
+#gymBranch by id
+@app.route('/branches/<int:bId>',methods=['GET','DELETE','PATCH'])
+def BranchbyID(bId):
 
+    if (request.method == 'GET'): #Get branch by ID
         #Permissions: Either any valid EJWT or CJWT
         ejwt = request.cookies.get("EJWT",None)
         cjwt = request.cookies.get("CJWT",None)
@@ -933,6 +1046,72 @@ def getABranch(bId):
         finally:
                 cursor.close()
                 conn.close()
+
+
+    elif(request.method == 'DELETE'): #Delete branch by id
+        #Permissions: ADMIN
+        ejwt = request.cookies.get("EJWT",None)
+
+        if(ejwt == None):
+            return authenticationError()
+
+        try:
+            ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+        except:
+            return authenticationError()
+
+        #a valid ejwt was given
+        #checks whether this employee is loggedIn and if they are Admin
+        if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+            return authenticationError()
+
+
+        #Permissions are granted
+        try:
+                conn = mysql.connect()
+                cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                #Deletes any assocation to preserve integrity
+                cursor.execute(f'DELETE FROM time_books WHERE branchId = {bId};')
+                cursor.execute(f'DELETE FROM time_slot WHERE branchId = {bId};')
+                cursor.execute(f'DELETE FROM day_schedule WHERE branchId = {bId};')
+
+
+                cursor.execute(f'DELETE FROM service_books WHERE branchId = {bId};')
+                cursor.execute(f'DELETE FROM service WHERE branchId = {bId};')
+
+
+                cursor.execute(f'DELETE FROM manages WHERE branchId = {bId};')
+                cursor.execute(f'DELETE FROM instructs WHERE branchId = {bId};')
+
+                cursor.execute(f'UPDATE employee SET branchId = NULL WHERE branchId = {bId};')
+                cursor.execute(f'UPDATE equipment SET branchId = NULL, storageType = NULL WHERE branchId = {bId};')
+
+                conn.commit()
+
+                cursor.execute(f'DELETE FROM gym_storage WHERE branchId = {bId};')
+                conn.commit()
+
+                #Deletes Branch
+                cursor.execute(f'DELETE FROM gym_branch WHERE branchId = {bId};')
+                conn.commit()
+
+                m = {'deleteSuccess' : True}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+
+        except Exception as e:
+                print(e)
+                m = {'deleteSuccess' : False}
+                response = jsonify(m)
+                response.status_code = 200
+                return response
+        finally:
+                cursor.close()
+                conn.close()
+
+
 
 
 #Get all Equipment From Branch
