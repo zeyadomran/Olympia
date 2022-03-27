@@ -116,6 +116,7 @@ CREATE TABLE Service (
 	branchId INT,
 	serviceName VARCHAR(255),
 	timeOfService time,
+	timeEnds time,
 	daysOfService VARCHAR(255),
 	capacity INT,
 	description text,
@@ -126,7 +127,9 @@ CREATE TABLE Service (
 CREATE TABLE INSTRUCTS (
 	serviceId INT,
 	eId INT,
-	FOREIGN KEY (serviceId) REFERENCES Service(serviceId),
+	branchId INT,
+	PRIMARY KEY (serviceId,eId,branchId),
+	FOREIGN KEY (serviceId,branchId) REFERENCES Service(serviceId,branchId),
 	FOREIGN KEY (eId) REFERENCES Employee(eId)
 );
 

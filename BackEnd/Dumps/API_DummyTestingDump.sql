@@ -38,7 +38,7 @@ CREATE TABLE `client` (
   `endDate` date DEFAULT NULL,
   `passwordHash` varchar(300) DEFAULT NULL,
   PRIMARY KEY (`clientId`)
-) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10004 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -47,6 +47,7 @@ CREATE TABLE `client` (
 
 LOCK TABLES `client` WRITE;
 /*!40000 ALTER TABLE `client` DISABLE KEYS */;
+INSERT INTO `client` VALUES (1,'starLordRox@hotmail.com','(123) 456-789','1988-12-28','John','Doe','M','YEAR_PASS',12,'2012-12-12','2022-12-12','$2b$12$bHop6pQFFJBG86NnXZUg4.s4DFAqwPyV5T34UrngmhyF7L66aJ4ZO');
 /*!40000 ALTER TABLE `client` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -97,6 +98,7 @@ CREATE TABLE `day_schedule` (
 
 LOCK TABLES `day_schedule` WRITE;
 /*!40000 ALTER TABLE `day_schedule` DISABLE KEYS */;
+INSERT INTO `day_schedule` VALUES (1,'2022-03-26'),(1,'2022-03-27'),(1,'2022-03-28'),(1,'2022-03-29'),(1,'2022-03-30'),(1,'2022-03-31'),(1,'2022-04-01'),(1,'2022-04-28');
 /*!40000 ALTER TABLE `day_schedule` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -121,7 +123,7 @@ CREATE TABLE `employee` (
   PRIMARY KEY (`eId`),
   KEY `branchId` (`branchId`),
   CONSTRAINT `employee_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
-) ENGINE=InnoDB AUTO_INCREMENT=10001 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10017 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,6 +132,7 @@ CREATE TABLE `employee` (
 
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
+INSERT INTO `employee` VALUES (1,1,'email@host.ca','(123) 456-789','2077-12-12','Austin','Bond','M','Admin','$2b$12$bHop6pQFFJBG86NnXZUg4.s4DFAqwPyV5T34UrngmhyF7L66aJ4ZO'),(2,1,'email@host.ca','(123) 456-789','1988-08-28','Peter','Quill','M','Trainer','$2b$12$bHop6pQFFJBG86NnXZUg4.s4DFAqwPyV5T34UrngmhyF7L66aJ4ZO');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -150,7 +153,7 @@ CREATE TABLE `equipment` (
   PRIMARY KEY (`eId`),
   KEY `branchId` (`branchId`,`storageType`),
   CONSTRAINT `equipment_ibfk_1` FOREIGN KEY (`branchId`, `storageType`) REFERENCES `gym_storage` (`branchId`, `storageType`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -159,6 +162,7 @@ CREATE TABLE `equipment` (
 
 LOCK TABLES `equipment` WRITE;
 /*!40000 ALTER TABLE `equipment` DISABLE KEYS */;
+INSERT INTO `equipment` VALUES (2,'Bench-Press','F','2022-03-25',1,'Floor'),(3,'Dumbell','F','2022-03-25',1,'Storage'),(4,'Hack-Squat','F','2022-03-25',1,'Floor'),(5,'Barbell','F','2022-03-25',1,'Storage');
 /*!40000 ALTER TABLE `equipment` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -175,7 +179,7 @@ CREATE TABLE `gym_branch` (
   `bAddress` varchar(255) DEFAULT NULL,
   `timeSlotCapacity` int unsigned DEFAULT NULL,
   PRIMARY KEY (`branchId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -184,6 +188,7 @@ CREATE TABLE `gym_branch` (
 
 LOCK TABLES `gym_branch` WRITE;
 /*!40000 ALTER TABLE `gym_branch` DISABLE KEYS */;
+INSERT INTO `gym_branch` VALUES (1,'Austin\'s Gym','123 Avondale Rd. Okotoks AB',85),(2,'newBranch','777 Heavenly Lane',77),(3,'branchOfChampions','123 123',40);
 /*!40000 ALTER TABLE `gym_branch` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -208,6 +213,7 @@ CREATE TABLE `gym_storage` (
 
 LOCK TABLES `gym_storage` WRITE;
 /*!40000 ALTER TABLE `gym_storage` DISABLE KEYS */;
+INSERT INTO `gym_storage` VALUES (1,'Floor'),(1,'Storage'),(3,'Floor'),(3,'Storage');
 /*!40000 ALTER TABLE `gym_storage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -219,12 +225,13 @@ DROP TABLE IF EXISTS `instructs`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `instructs` (
-  `serviceId` int DEFAULT NULL,
-  `eId` int DEFAULT NULL,
-  `branchId` int DEFAULT NULL,
-  KEY `serviceId` (`serviceId`),
+  `serviceId` int NOT NULL,
+  `eId` int NOT NULL,
+  `branchId` int NOT NULL,
+  PRIMARY KEY (`serviceId`,`eId`,`branchId`),
+  KEY `serviceId` (`serviceId`,`branchId`),
   KEY `eId` (`eId`),
-  CONSTRAINT `instructs_ibfk_1` FOREIGN KEY (`serviceId`) REFERENCES `service` (`serviceId`),
+  CONSTRAINT `instructs_ibfk_1` FOREIGN KEY (`serviceId`, `branchId`) REFERENCES `service` (`serviceId`, `branchId`),
   CONSTRAINT `instructs_ibfk_2` FOREIGN KEY (`eId`) REFERENCES `employee` (`eId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -261,6 +268,7 @@ CREATE TABLE `manages` (
 
 LOCK TABLES `manages` WRITE;
 /*!40000 ALTER TABLE `manages` DISABLE KEYS */;
+INSERT INTO `manages` VALUES (1,1);
 /*!40000 ALTER TABLE `manages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -290,6 +298,7 @@ CREATE TABLE `reports` (
 
 LOCK TABLES `reports` WRITE;
 /*!40000 ALTER TABLE `reports` DISABLE KEYS */;
+INSERT INTO `reports` VALUES (2,1,'Bad Support','2022-03-25',1);
 /*!40000 ALTER TABLE `reports` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -312,7 +321,7 @@ CREATE TABLE `service` (
   PRIMARY KEY (`serviceId`,`branchId`),
   KEY `branchId` (`branchId`),
   CONSTRAINT `service_ibfk_1` FOREIGN KEY (`branchId`) REFERENCES `gym_branch` (`branchId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -321,6 +330,7 @@ CREATE TABLE `service` (
 
 LOCK TABLES `service` WRITE;
 /*!40000 ALTER TABLE `service` DISABLE KEYS */;
+INSERT INTO `service` VALUES (1,1,'Parkour','12:00:00','MWF',50,'Hardcore','13:00:00'),(2,1,'Yoga','10:00:00','TR',40,'Super Relaxing','13:00:00');
 /*!40000 ALTER TABLE `service` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -351,6 +361,7 @@ CREATE TABLE `service_books` (
 
 LOCK TABLES `service_books` WRITE;
 /*!40000 ALTER TABLE `service_books` DISABLE KEYS */;
+INSERT INTO `service_books` VALUES (1,1,1,'2022-03-28'),(1,2,1,'2022-03-28');
 /*!40000 ALTER TABLE `service_books` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -379,6 +390,7 @@ CREATE TABLE `time_books` (
 
 LOCK TABLES `time_books` WRITE;
 /*!40000 ALTER TABLE `time_books` DISABLE KEYS */;
+INSERT INTO `time_books` VALUES (1,1,'2022-03-26','16:00:00');
 /*!40000 ALTER TABLE `time_books` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -404,6 +416,7 @@ CREATE TABLE `time_slot` (
 
 LOCK TABLES `time_slot` WRITE;
 /*!40000 ALTER TABLE `time_slot` DISABLE KEYS */;
+INSERT INTO `time_slot` VALUES (1,'2022-03-26','12:00:00'),(1,'2022-03-26','13:00:00'),(1,'2022-03-26','14:00:00'),(1,'2022-03-26','15:00:00'),(1,'2022-03-26','16:00:00'),(1,'2022-03-27','12:00:00'),(1,'2022-03-27','13:00:00'),(1,'2022-03-27','14:00:00'),(1,'2022-03-27','15:00:00'),(1,'2022-03-27','16:00:00'),(1,'2022-03-28','10:00:00');
 /*!40000 ALTER TABLE `time_slot` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -416,4 +429,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-22 19:40:26
+-- Dump completed on 2022-03-26 21:48:00
