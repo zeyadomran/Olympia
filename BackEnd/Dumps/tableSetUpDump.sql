@@ -221,6 +221,7 @@ DROP TABLE IF EXISTS `instructs`;
 CREATE TABLE `instructs` (
   `serviceId` int DEFAULT NULL,
   `eId` int DEFAULT NULL,
+  `branchId` int DEFAULT NULL,
   KEY `serviceId` (`serviceId`),
   KEY `eId` (`eId`),
   CONSTRAINT `instructs_ibfk_1` FOREIGN KEY (`serviceId`) REFERENCES `service` (`serviceId`),

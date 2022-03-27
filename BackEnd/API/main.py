@@ -2231,6 +2231,88 @@ def bookService(bId,sId):
 
 
 
+#Add or Remove Instructs relationship
+@app.route('/branches/<int:bID>/instructs',methods=['POST','DELETE'])
+def addRemoveInstructs(bId):
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _eId = _json['eId']
+        _sId = _json['sId']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+
+    if(request.method == 'POST'): #Add instructs relationship
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'insert into instructs (eId,serviceId) values ({eId},{cId},"{_issue}","{today}",true);')
+            conn.commit()
+
+            m = {"reportSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"reportSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #Delete Report
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM reports WHERE eId = {eId} AND clientId = {cId};')
+            conn.commit()
+
+            m = {"deleteReportSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"deleteReportSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
 def not_found(error=None):
