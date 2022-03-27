@@ -286,6 +286,108 @@ def EmpByID(id):
             finally:
                     cursor.close()
                     conn.close()
+        else: #PATCH update some Values of Employee
+                #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+                ejwt = request.cookies.get("EJWT",None)
+
+                if(ejwt == None):
+                    return authenticationError()
+
+                try:
+                    ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+                except:
+                    return authenticationError()
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False or (ej['eType'] != "Admin" and ej['eId'] != id)):
+                    return authenticationError()
+
+
+
+                #Permissions are granted
+
+
+                #Ensures a JSON body was passed
+                try:
+                    _json = request.json
+                except:
+                    return badRequest()
+
+
+                #Tries to get all possible update values (cannot update id)
+
+                d = dict() #dictionary to be later used with SQL Key = attr Value = update
+
+                if('branchId' in _json):
+                    d['branchId'] = _json['branchId']
+                if('email' in _json):
+                    d['email'] = _json['email']
+                if('phoneNum' in _json):
+                    d['phoneNum'] = _json['phoneNum']
+                if('dob' in _json):
+                    d['dob'] = _json['dob']
+                if('firstName' in _json):
+                    d['firstName'] = _json['firstName']
+                if('lastName' in _json):
+                    d['lastName'] = _json['lastName']
+                if('sex' in _json):
+                    d['sex'] = _json['sex']
+                if('eType' in _json):
+                    d['eType'] = _json['eType']
+                if('password' in _json):
+                    #hash
+                    pb = str.encode(_json['password'])
+                    h1 = bcrypt.hashpw(pb, salt) #No random salt used for simplification
+                    h = h1.decode()
+                    d['passwordHash'] = h
+
+                #No relevent values were passed
+                if(len(d) == 0):
+                    return badRequest()
+
+                #Now that we have all values, arrange sqlQuery
+
+
+
+                query = "UPDATE employee SET " #start of query
+
+                for k in d:
+                    if(type(d[k]) == str):
+                        query = query + k + ' = "' + d[k] + '", '
+                    else:
+                        query = query + k + ' = ' + d[k] + ', '
+
+                query = query[0:-2] #Removes last comma and space
+
+                query = query + f' WHERE eId = {id};'
+
+                try:
+                        conn = mysql.connect()
+                        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                        #Updates Client
+                        cursor.execute(query)
+                        conn.commit()
+
+                        #Fetches update client
+                        result = cursor.execute(f'SELECT eId,branchId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,eType FROM employee WHERE eId = {id};')
+
+                        if (result <= 0):
+                                print("EMPTY EMPTY") #This occurs when response comes back empty
+                                return not_found()
+                        else:
+                                empReturn = cursor.fetchone()
+                                response = jsonify(empReturn)
+                                response.status_code = 200
+                                return response
+
+                except Exception as e:
+                        print(e)
+
+                finally:
+                        cursor.close()
+                        conn.close()
 
 #Get all employees
 @app.route('/employee',methods=['GET'])
