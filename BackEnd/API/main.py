@@ -545,8 +545,7 @@ def cSignup():
 #Client by ID
 @app.route('/client/<int:id>',methods=['GET','DELETE','PATCH'])
 def clientByID(id):
-
-        if(request.method == 'GET'): #GET client by ID
+    if(request.method == 'GET'): #GET client by ID
             #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
             ejwt = request.cookies.get("EJWT",None)
             cjwt = request.cookies.get("CJWT",None)
@@ -609,7 +608,7 @@ def clientByID(id):
                     conn.close()
 
 
-        elif (request.method == 'DELETE'): #Delete Client by id
+    elif (request.method == 'DELETE'): #Delete Client by id
             #Permissions: ADMIN
             ejwt = request.cookies.get("EJWT",None)
 
@@ -659,7 +658,134 @@ def clientByID(id):
                     cursor.close()
                     conn.close()
 
+    else: #PATCH update some Values of Client
+            #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+            ejwt = request.cookies.get("EJWT",None)
+            cjwt = request.cookies.get("CJWT",None)
 
+            eFlag = False
+            cFlag = False
+
+            if(ejwt == None and cjwt == None):
+                return authenticationError()
+
+            if(ejwt != None):
+                eFlag = True
+                try:
+                    ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+                except:
+                    eFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
+
+            elif (eFlag == False and cjwt != None):
+                cFlag = True
+                try:
+                    cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+                except:
+                    cFlag = False
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(cj["loggedIn"] == False or cj["clientId"] != id):
+                    eFlag = False
+            else:
+                return authenticationError()
+
+            if(cFlag == False and eFlag == False):
+                return authenticationError()
+
+            #Permissions are granted
+
+
+            #Ensures a JSON body was passed
+            try:
+                _json = request.json
+            except:
+                return badRequest()
+
+
+            #Tries to get all possible update values (cannot update id)
+
+            d = dict() #dictionary to be later used with SQL Key = attr Value = update
+
+
+            if('email' in _json):
+                d['email'] = _json['email']
+            if('phoneNum' in _json):
+                d['phoneNum'] = _json['phoneNum']
+            if('dob' in _json):
+                d['dob'] = _json['dob']
+            if('firstName' in _json):
+                d['firstName'] = _json['firstName']
+            if('lastName' in _json):
+                d['lastName'] = _json['lastName']
+            if('sex' in _json):
+                d['sex'] = _json['sex']
+            if('memberType' in _json):
+                d['memberType'] = _json['memberType']
+            if('price' in _json):
+                d['price'] = _json['price']
+            if('startDate' in _json):
+                d['startDate'] = _json['startDate']
+            if('endDate' in _json):
+                d['endDate'] = _json['endDate']
+            if('password' in _json):
+                #hash
+                pb = str.encode(_json['password'])
+                h1 = bcrypt.hashpw(pb, salt) #No random salt used for simplification
+                h = h1.decode()
+                d['passwordHash'] = h
+
+            #No relevent values were passed
+            if(len(d) == 0):
+                return badRequest()
+
+            #Now that we have all values, arrange sqlQuery
+
+
+
+            query = "UPDATE client SET " #start of query
+
+            for k in d:
+                if(type(d[k]) == str):
+                    query = query + k + ' = "' + d[k] + '", '
+                else:
+                    query = query + k + ' = ' + d[k] + ', '
+
+            query = query[0:-2] #Removes last comma and space
+
+            query = query + f' WHERE clientId = {id};'
+
+            try:
+                    conn = mysql.connect()
+                    cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+                    #Updates Client
+                    cursor.execute(query)
+                    conn.commit()
+
+                    #Fetches update client
+                    result = cursor.execute(f'SELECT clientId,email,phoneNum,DATE_FORMAT(dob,"%Y-%m-%d") as dob,firstName,lastName,sex,memberType,price,DATE_FORMAT(startDate,"%Y-%m-%d") as startDate,DATE_FORMAT(endDate,"%Y-%m-%d") as endDate FROM client WHERE clientId = {id};')
+
+                    if (result <= 0):
+                            print("EMPTY EMPTY") #This occurs when response comes back empty
+                            return not_found()
+                    else:
+                            clientReturn = cursor.fetchone()
+                            response = jsonify(clientReturn)
+                            response.status_code = 200
+                            return response
+
+            except Exception as e:
+                    print(e)
+
+            finally:
+                    cursor.close()
+                    conn.close()
 
 
 #Get all clients
