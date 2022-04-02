@@ -2395,7 +2395,7 @@ def addWeeksTimeSlots(bId):
 
 
 
-#Get all bookings that the CJWT has booked from that gymBranch
+#Get all bookings that the CJWT has booked from that gymBranch from current day on
 @app.route('/branches/<int:bId>/getBooked',methods=['GET'])
 def getClientBookingsFromBranch(bId):
     cjwt = request.cookies.get("CJWT",None)
@@ -2422,7 +2422,9 @@ def getClientBookingsFromBranch(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            result = cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking,TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking FROM time_books WHERE branchId = {bId} AND clientId = {cId};')
+            today = str(datetime.date.today().strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+
+            result = cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking,TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking FROM time_books WHERE branchId = {bId} AND clientId = {cId} AND dateOfBooking >= "{today}";')
 
             if (result <= 0):
                     print("EMPTY EMPTY") #This occurs when response comes back empty
@@ -2776,7 +2778,7 @@ def UpdateServiceInBranch(bId,sId):
             conn.close()
 
 
-#Get all services that the CJWT has booked from that gymBranch
+#Get all services that the CJWT has booked from that gymBranch from this day forward
 @app.route('/branches/<int:bId>/getServicesBooked',methods=['GET'])
 def getClientServiceBookingsFromBranch(bId):
     cjwt = request.cookies.get("CJWT",None)
@@ -2801,7 +2803,10 @@ def getClientServiceBookingsFromBranch(bId):
     try:
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
-            result = cursor.execute(f'SELECT branchId,serviceId,clientId,DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking FROM service_books WHERE branchId = {bId} AND clientId = {cId};')
+
+            today = str(datetime.date.today().strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+
+            result = cursor.execute(f'SELECT branchId,serviceId,clientId,DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking FROM service_books WHERE branchId = {bId} AND clientId = {cId} AND dateOfBooking >= "{today}";')
 
             if (result <= 0):
                     print("EMPTY EMPTY") #This occurs when response comes back empty
