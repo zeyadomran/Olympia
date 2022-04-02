@@ -1816,7 +1816,7 @@ def reportEquipment(eId):
 
 
 #employee Switches the status of a report
-@app.route('/equipment/<int:eId>/report/<int:cId>/switch',methods=['POST'])
+@app.route('/equipment/<int:eId>/report/<int:cId>/switch',methods=['PUT'])
 def switchReport(eId,cId):
 
     ejwt = request.cookies.get("EJWT",None)
