@@ -1524,6 +1524,11 @@ def getAllEquipFromBranch(id):
                 return badRequest()
 
             #We have all the attributes
+            if(_rps != "F" or _rps != "B"):
+                return badRequest()
+
+            if(_storageType != "Floor" or _storageType != "Storage"):
+                return badRequest()
 
             try:
                 conn = mysql.connect()
@@ -1535,7 +1540,7 @@ def getAllEquipFromBranch(id):
                 cursor.execute(sqlQuery, bindData)
                 conn.commit()
 
-                result = cursor.execute('SELECT * FROM equipment WHERE LAST_INSERT_ID() = eId;')
+                result = cursor.execute('SELECT eId,eName,repairStatus,DATE_FORMAT(purchaseDate,"%Y-%m-%d") as purchaseDate,branchId,storageType FROM equipment WHERE LAST_INSERT_ID() = eId;')
 
                 if(result <= 0):
                     return serverError()
@@ -1603,7 +1608,7 @@ def getEquipDeleteEquip(eId):
         try:
                 conn = mysql.connect()
                 cursor = conn.cursor(pymysql.cursors.DictCursor)
-                result = cursor.execute(f'SELECT * FROM equipment WHERE eId = {eId};')
+                result = cursor.execute(f'SELECT eId,eName,repairStatus,DATE_FORMAT(purchaseDate,"%Y-%m-%d") as purchaseDate,branchId,storageType FROM equipment WHERE eId = {eId};')
 
                 if (result <= 0):
                         print("EMPTY EMPTY") #This occurs when response comes back empty
