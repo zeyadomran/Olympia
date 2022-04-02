@@ -2023,6 +2023,7 @@ def getWeekBookingsFromBranch(bId):
         return authenticationError()
 
     #Permissions are granted
+    emptyFlag = False #Assumes at least one timeslot exists within range
 
     try:
             #Gets YYYY-MM-DD of today and the date seven days from today
@@ -2035,46 +2036,61 @@ def getWeekBookingsFromBranch(bId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
+            result = cursor.execute(f'SELECT * FROM gym_branch WHERE branchId = {bId};')
+
+            if(result <= 0): #branch doesn't exist
+                return not_found()
+
             result = cursor.execute(f'SELECT branchId,DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking,TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking FROM time_slot WHERE branchId = {bId} AND dateOfBooking >= "{today}" AND dateOfBooking < "{sevenDays}";')
 
+
             if (result <= 0):
-                    print("EMPTY EMPTY") #This occurs when response comes back empty
-                    return not_found()
+                emptyFlag = True #No timeslots exist at all
 
-            slots = cursor.fetchall() # all timeslots in the next 7 days
+            else: #At least one timeslot exists in range
+                slots = cursor.fetchall() # all timeslots in the next 7 days
 
-            cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking, TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking, COUNT(*) as count FROM time_books WHERE branchId = {bId} AND dateOfBooking >= "{today}" AND dateOfBooking < "{sevenDays}" GROUP BY dateOfBooking,timeOfBooking;')
+                cursor.execute(f'SELECT DATE_FORMAT(dateOfBooking,"%Y-%m-%d") as dateOfBooking, TIME_FORMAT(timeOfBooking, "%H:%i") as timeOfBooking, COUNT(*) as count FROM time_books WHERE branchId = {bId} AND dateOfBooking >= "{today}" AND dateOfBooking < "{sevenDays}" GROUP BY dateOfBooking,timeOfBooking;')
 
-            booked = cursor.fetchall() # How many each of those time slots has filled
+                booked = cursor.fetchall() # How many each of those time slots has filled
 
 
-            bd = dict()
-            for c in booked:
-                if(not c["dateOfBooking"] in bd):
-                    bd[c["dateOfBooking"]] = dict()
+                bd = dict()
+                for c in booked:
+                    if(not c["dateOfBooking"] in bd):
+                        bd[c["dateOfBooking"]] = dict()
 
-                bd[c["dateOfBooking"]][c["timeOfBooking"]] = c["count"]
+                    bd[c["dateOfBooking"]][c["timeOfBooking"]] = c["count"]
+
 
             cursor.execute(f'SELECT timeSlotCapacity FROM Gym_Branch WHERE branchId = {bId};')
 
             capD = cursor.fetchone() # the capacity of each timeSlot from the gym branch
             cap = capD['timeSlotCapacity']
 
-
             d = dict() #key = date, value = [(timeSlot,spacesLeft)]
-            for timeSlot in slots:
-                date = timeSlot["dateOfBooking"]
-                time = timeSlot["timeOfBooking"]
 
-                if(not date in d):
-                    d[date] = list()
+            if(not emptyFlag):
+                for timeSlot in slots:
+                    date = timeSlot["dateOfBooking"]
+                    time = timeSlot["timeOfBooking"]
 
-                if(not date in bd):
-                    d[date].append((time,cap))
-                elif(time in bd[date]):
-                    d[date].append((timeSlot["timeOfBooking"],cap - bd[date][time])) #appends (timeSlot,numLeft) to dateDictionary
-                else:
-                    d[date].append((timeSlot["timeOfBooking"],cap)) #appends (timeSlot,numLeft) to dateDictionary
+                    if(not date in d):
+                        d[date] = list()
+
+                    if(not date in bd):
+                        d[date].append((time,cap))
+                    elif(time in bd[date]):
+                        d[date].append((timeSlot["timeOfBooking"],cap - bd[date][time])) #appends (timeSlot,numLeft) to dateDictionary
+                    else:
+                        d[date].append((timeSlot["timeOfBooking"],cap)) #appends (timeSlot,numLeft) to dateDictionary
+
+
+            #Adds missing days for website conveinence
+            for i in range(7):
+                nextDay = str((t + datetime.timedelta(days=i)).strftime('%Y-%m-%d')) #Gets day YYYY-MM-DD
+                if(not nextDay in d):
+                    d[nextDay] = list()
 
 
 
