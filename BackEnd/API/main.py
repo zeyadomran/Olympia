@@ -1476,7 +1476,7 @@ def getAllEquipFromBranch(id):
             try:
                     conn = mysql.connect()
                     cursor = conn.cursor(pymysql.cursors.DictCursor)
-                    result = cursor.execute(f'SELECT * FROM equipment WHERE branchId = {id};')
+                    result = cursor.execute(f'SELECT eId,eName,repairStatus,DATE_FORMAT(purchaseDate,"%Y-%m-%d") as purchaseDate,branchId,storageType FROM equipment WHERE branchId = {id};')
 
                     if (result <= 0):
                             print("EMPTY EMPTY") #This occurs when response comes back empty
