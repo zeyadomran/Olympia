@@ -1918,7 +1918,7 @@ def getReportsFromBranch(bId):
     try:
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
-            result = cursor.execute(f'SELECT r.eId,r.clientId,r.dateOfReport,r.issue,r.curStatus FROM reports as r, equipment as e WHERE e.eId = r.eId AND e.branchId = {bId};')
+            result = cursor.execute(f'SELECT r.eId,r.clientId,DATE_FORMAT(r.dateOfReport,"%Y-%m-%d") as dateOfReport,r.issue,r.curStatus FROM reports as r, equipment as e WHERE e.eId = r.eId AND e.branchId = {bId};')
 
             if (result <= 0):
                     print("EMPTY EMPTY") #This occurs when response comes back empty
