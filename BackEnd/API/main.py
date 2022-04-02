@@ -2029,7 +2029,7 @@ def getWeekBookingsFromBranch(bId):
             #Gets YYYY-MM-DD of today and the date seven days from today
             t = datetime.date.today()
             today = str(t.strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
-            sevenDays = str((t + datetime.timedelta(days=7)).strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+            sevenDays = str((t + datetime.timedelta(days=7)).strftime('%Y-%m-%d')) #Gets day YYYY-MM-DD
 
 
 
@@ -2112,6 +2112,8 @@ def getWeekBookingsFromBranch(bId):
     finally:
             cursor.close()
             conn.close()
+
+
 
 
 #Client books or unbooks a timeSlot
@@ -2308,6 +2310,89 @@ def addRemoveTimeSlot(bId):
         finally:
             cursor.close()
             conn.close()
+
+
+
+#Employee Adds a default week's worth of timeslots based on times given (on the hour)
+@app.route('/branches/<int:bId>/addTimeSlot/week',methods=['POST'])
+def addWeeksTimeSlots(bId):
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _start = _json['startTime']
+        _end= _json['endTime']
+        start = int(_start.replace(":",""))
+        end = int(_end.replace(":",""))
+        assert(start<end)
+        assert(_start[-2::] == "00")
+        assert(_end[-2::] == "00")
+    except:
+        return badRequest()
+
+    try:
+        conn = mysql.connect()
+        cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+        result = cursor.execute(f'SELECT * FROM gym_branch WHERE branchId = {bId};')
+
+        if(result <= 0): #branch doesn't exist
+            return not_found()
+
+        #branch exists
+
+        #Gets YYYY-MM-DD of today and the date seven days from today
+        t = datetime.date.today()
+        #today = str(t.strftime('%Y-%m-%d')) #Gets current day YYYY-MM-DD
+
+        for i in range(7):
+            nextDay = str((t + datetime.timedelta(days=i)).strftime('%Y-%m-%d')) #Gets day YYYY-MM-DD
+            result = cursor.execute(f'SELECT * FROM day_schedule WHERE branchId = {bId} AND dateOfBooking = "{nextDay}";')
+
+            if(result == 0): #No day_schedule exits (add times)
+                cursor.execute(f'INSERT INTO day_schedule (branchId,dateOfBooking) values ({bId},"{nextDay}");')
+                conn.commit()
+
+                for j in range(start,end+1,100):
+                    s = str(j%2400)
+                    s2 = s[0:-2] + ":" + s[-2::] #converts 1100 to 11:00
+                    cursor.execute(f'INSERT INTO time_slot (branchId,dateOfBooking,timeOfBooking) values ({bId},"{nextDay}","{s2}");')
+                    conn.commit()
+
+
+
+        m = {"addingSuccess" : True}
+        response = jsonify(m)
+        response.status_code = 200
+        return response
+
+
+    except Exception as e:
+        print(e)
+        m = {"addingSuccess" : False}
+        response = jsonify(m)
+        response.status_code = 200
+        return response
+    finally:
+        cursor.close()
+        conn.close()
+
 
 
 #Get all bookings that the CJWT has booked from that gymBranch
