@@ -2499,6 +2499,18 @@ def getAllServicesFromBranch(bId):
                     return not_found()
             else:
                     equipReturn = cursor.fetchall()
+
+                    for service in equipReturn:
+                        service['Instructors'] = list()
+                        sId = service['serviceId']
+
+                        result = cursor.execute(f'SELECT eId FROM instructs WHERE branchId = {bId} AND serviceId = {sId};')
+                        if(result > 0):
+                            iReturn = cursor.fetchall()
+                            for instructor in iReturn:
+                                service['Instructors'].append(instructor['eId'])
+
+
                     response = jsonify(equipReturn)
                     response.status_code = 200
                     return response
@@ -2565,6 +2577,15 @@ def getAServiceFromBranch(bId,sId):
                     return not_found()
             else:
                     equipReturn = cursor.fetchone()
+                    equipReturn['Instructors'] = list()
+
+                    result = cursor.execute(f'SELECT eId FROM instructs WHERE branchId = {bId} AND serviceId = {sId};')
+                    if(result > 0):
+                        iReturn = cursor.fetchall()
+                        for instructor in iReturn:
+                            equipReturn['Instructors'].append(instructor['eId'])
+
+
                     response = jsonify(equipReturn)
                     response.status_code = 200
                     return response
