@@ -2984,7 +2984,7 @@ def addRemoveInstructs(bId):
             cursor.close()
             conn.close()
 
-    else: #Delete Report
+    else: #Delete Instructs relationship
         try:
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
@@ -3008,6 +3008,86 @@ def addRemoveInstructs(bId):
             cursor.close()
             conn.close()
 
+
+#Add or Remove Manages relationship
+@app.route('/branches/<int:bId>/manages',methods=['POST','DELETE'])
+def addRemoveManages(bId):
+    ejwt = request.cookies.get("EJWT",None)
+
+    if(ejwt == None):
+        return authenticationError()
+
+    try:
+        ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+    except:
+        return authenticationError()
+
+    #a valid ejwt was given
+    #checks whether this employee is loggedIn
+    if(ej["loggedIn"] == False or ej["eType"] != "Admin"):
+        return authenticationError()
+
+    #Permissions are granted
+
+    #Gets required attributes from JSON body
+    try:
+        _json = request.json
+        _eId = _json['eId']
+    except:
+        return badRequest()
+
+
+    #We have all the attributes
+
+
+    if(request.method == 'POST'): #Add manages relationship
+
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'insert into manages (branchId,eId) values ({bId},{_eId});')
+            conn.commit()
+
+            m = {"addSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"addSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
+
+    else: #Delete manages relationship
+        try:
+            conn = mysql.connect()
+            cursor = conn.cursor(pymysql.cursors.DictCursor)
+
+            cursor.execute(f'DELETE FROM manages WHERE eId = {_eId} AND branchId = {bId};')
+            conn.commit()
+
+            m = {"deleteSuccess" : True}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+
+
+        except Exception as e:
+            print(e)
+            m = {"deleteSuccess" : False}
+            response = jsonify(m)
+            response.status_code = 200
+            return response
+        finally:
+            cursor.close()
+            conn.close()
 
 
 #Occurs when request cannot be satisfied
