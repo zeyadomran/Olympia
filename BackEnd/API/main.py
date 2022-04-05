@@ -662,27 +662,29 @@ def clientByID(id):
                 eFlag = True
                 try:
                     ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                    #a valid ejwt was given
+                    #checks whether this employee is loggedIn
+                    if(ej["loggedIn"] == False):
+                        eFlag = False
                 except:
                     eFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(ej["loggedIn"] == False):
-                    eFlag = False
 
-            elif (eFlag == False and cjwt != None):
+
+            if (eFlag == False and cjwt != None):
                 cFlag = True
                 try:
                     cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                    #a valid cjwt was given
+                    #checks whether this client is loggedIn
+                    if(cj["loggedIn"] == False or cj["clientId"] != id):
+                        cFlag = False
                 except:
                     cFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(cj["loggedIn"] == False or cj["clientId"] != id):
-                    eFlag = False
-            else:
-                return authenticationError()
+
 
             if(cFlag == False and eFlag == False):
                 return authenticationError()
@@ -775,27 +777,29 @@ def clientByID(id):
                 eFlag = True
                 try:
                     ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                    #a valid ejwt was given
+                    #checks whether this employee is loggedIn
+                    if(ej["loggedIn"] == False):
+                        eFlag = False
                 except:
                     eFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(ej["loggedIn"] == False):
-                    eFlag = False
 
-            elif (eFlag == False and cjwt != None):
+
+            if (eFlag == False and cjwt != None):
                 cFlag = True
                 try:
                     cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                    #a valid cjwt was given
+                    #checks whether this client is loggedIn
+                    if(cj["loggedIn"] == False or cj["clientId"] != id):
+                        cFlag = False
                 except:
                     cFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(cj["loggedIn"] == False or cj["clientId"] != id):
-                    eFlag = False
-            else:
-                return authenticationError()
+
 
             if(cFlag == False and eFlag == False):
                 return authenticationError()
@@ -1081,7 +1085,7 @@ def getAllTrainersOfBranch(bId):
 def getAllBranches():
 
     if(request.method == 'GET'):
-        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        #Permissions: Either any valid EJWT or CJWT
         ejwt = request.cookies.get("EJWT",None)
         cjwt = request.cookies.get("CJWT",None)
 
@@ -1095,27 +1099,29 @@ def getAllBranches():
             eFlag = True
             try:
                 ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
             except:
                 eFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(ej["loggedIn"] == False):
-                eFlag = False
 
-        elif (eFlag == False and cjwt != None):
+
+        if (eFlag == False and cjwt != None):
             cFlag = True
             try:
                 cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                #a valid cjwt was given
+                #checks whether this client is loggedIn
+                if(cj["loggedIn"] == False):
+                    cFlag = False
             except:
                 cFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(cj["loggedIn"] == False):
-                eFlag = False
-        else:
-            return authenticationError()
+
 
         if(cFlag == False and eFlag == False):
             return authenticationError()
@@ -1228,27 +1234,29 @@ def BranchbyID(bId):
             eFlag = True
             try:
                 ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
             except:
                 eFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(ej["loggedIn"] == False):
-                eFlag = False
 
-        elif (eFlag == False and cjwt != None):
+
+        if (eFlag == False and cjwt != None):
             cFlag = True
             try:
                 cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                #a valid cjwt was given
+                #checks whether this client is loggedIn
+                if(cj["loggedIn"] == False):
+                    cFlag = False
             except:
                 cFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(cj["loggedIn"] == False):
-                eFlag = False
-        else:
-            return authenticationError()
+
 
         if(cFlag == False and eFlag == False):
             return authenticationError()
@@ -1432,7 +1440,7 @@ def BranchbyID(bId):
 def getAllEquipFromBranch(id):
 
         if(request.method == 'GET'):
-            #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+            #Permissions: Either any valid EJWT or CJWT
             ejwt = request.cookies.get("EJWT",None)
             cjwt = request.cookies.get("CJWT",None)
 
@@ -1446,27 +1454,29 @@ def getAllEquipFromBranch(id):
                 eFlag = True
                 try:
                     ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                    #a valid ejwt was given
+                    #checks whether this employee is loggedIn
+                    if(ej["loggedIn"] == False):
+                        eFlag = False
                 except:
                     eFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(ej["loggedIn"] == False):
-                    eFlag = False
 
-            elif (eFlag == False and cjwt != None):
+
+            if (eFlag == False and cjwt != None):
                 cFlag = True
                 try:
                     cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                    #a valid cjwt was given
+                    #checks whether this client is loggedIn
+                    if(cj["loggedIn"] == False):
+                        cFlag = False
                 except:
                     cFlag = False
 
-                #a valid ejwt was given
-                #checks whether this employee is loggedIn
-                if(cj["loggedIn"] == False):
-                    eFlag = False
-            else:
-                return authenticationError()
+
 
             if(cFlag == False and eFlag == False):
                 return authenticationError()
@@ -1564,7 +1574,7 @@ def getAllEquipFromBranch(id):
 def getEquipDeleteEquip(eId):
 
     if(request.method == 'GET'):
-        #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
+        #Permissions: Either any valid EJWT or CJWT
         ejwt = request.cookies.get("EJWT",None)
         cjwt = request.cookies.get("CJWT",None)
 
@@ -1578,27 +1588,29 @@ def getEquipDeleteEquip(eId):
             eFlag = True
             try:
                 ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+                #a valid ejwt was given
+                #checks whether this employee is loggedIn
+                if(ej["loggedIn"] == False):
+                    eFlag = False
             except:
                 eFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(ej["loggedIn"] == False):
-                eFlag = False
 
-        elif (eFlag == False and cjwt != None):
+
+        if (eFlag == False and cjwt != None):
             cFlag = True
             try:
                 cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+                #a valid cjwt was given
+                #checks whether this client is loggedIn
+                if(cj["loggedIn"] == False):
+                    cFlag = False
             except:
                 cFlag = False
 
-            #a valid ejwt was given
-            #checks whether this employee is loggedIn
-            if(cj["loggedIn"] == False):
-                eFlag = False
-        else:
-            return authenticationError()
+
 
         if(cFlag == False and eFlag == False):
             return authenticationError()
@@ -1888,27 +1900,29 @@ def getReportsFromBranch(bId):
         eFlag = True
         try:
             ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
         except:
             eFlag = False
 
-        #a valid ejwt was given
-        #checks whether this employee is loggedIn
-        if(ej["loggedIn"] == False):
-            eFlag = False
 
-    elif (eFlag == False and cjwt != None):
+
+    if (eFlag == False and cjwt != None):
         cFlag = True
         try:
             cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+            #a valid cjwt was given
+            #checks whether this client is loggedIn
+            if(cj["loggedIn"] == False):
+                cFlag = False
         except:
             cFlag = False
 
-        #a valid ejwt was given
-        #checks whether this client is loggedIn
-        if(cj["loggedIn"] == False):
-            eFlag = False
-    else:
-        return authenticationError()
+
 
     if(cFlag == False and eFlag == False):
         return authenticationError()
@@ -1997,32 +2011,37 @@ def getWeekBookingsFromBranch(bId):
         eFlag = True
         try:
             ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
         except:
             eFlag = False
 
-        #a valid ejwt was given
-        #checks whether this employee is loggedIn
-        if(ej["loggedIn"] == False):
-            eFlag = False
 
-    elif (eFlag == False and cjwt != None):
+
+    if (eFlag == False and cjwt != None):
         cFlag = True
         try:
             cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+            #a valid cjwt was given
+            #checks whether this client is loggedIn
+            if(cj["loggedIn"] == False):
+                cFlag = False
         except:
             cFlag = False
 
-        #a valid ejwt was given
-        #checks whether this client is loggedIn
-        if(cj["loggedIn"] == False):
-            eFlag = False
-    else:
-        return authenticationError()
+
 
     if(cFlag == False and eFlag == False):
         return authenticationError()
 
     #Permissions are granted
+
+
+
     emptyFlag = False #Assumes at least one timeslot exists within range
 
     try:
@@ -2462,27 +2481,29 @@ def getAllServicesFromBranch(bId):
         eFlag = True
         try:
             ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
         except:
             eFlag = False
 
-        #a valid ejwt was given
-        #checks whether this employee is loggedIn
-        if(ej["loggedIn"] == False):
-            eFlag = False
 
-    elif (eFlag == False and cjwt != None):
+
+    if (eFlag == False and cjwt != None):
         cFlag = True
         try:
             cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+            #a valid cjwt was given
+            #checks whether this client is loggedIn
+            if(cj["loggedIn"] == False):
+                cFlag = False
         except:
             cFlag = False
 
-        #a valid ejwt was given
-        #checks whether this client is loggedIn
-        if(cj["loggedIn"] == False):
-            eFlag = False
-    else:
-        return authenticationError()
+
 
     if(cFlag == False and eFlag == False):
         return authenticationError()
@@ -2540,27 +2561,29 @@ def getAServiceFromBranch(bId,sId):
         eFlag = True
         try:
             ej = jwt.decode(ejwt, secret, algorithms=["HS256"])
+
+            #a valid ejwt was given
+            #checks whether this employee is loggedIn
+            if(ej["loggedIn"] == False):
+                eFlag = False
         except:
             eFlag = False
 
-        #a valid ejwt was given
-        #checks whether this employee is loggedIn
-        if(ej["loggedIn"] == False):
-            eFlag = False
 
-    elif (eFlag == False and cjwt != None):
+
+    if (eFlag == False and cjwt != None):
         cFlag = True
         try:
             cj = jwt.decode(cjwt, secret, algorithms=["HS256"])
+
+            #a valid cjwt was given
+            #checks whether this client is loggedIn
+            if(cj["loggedIn"] == False):
+                cFlag = False
         except:
             cFlag = False
 
-        #a valid ejwt was given
-        #checks whether this client is loggedIn
-        if(cj["loggedIn"] == False):
-            eFlag = False
-    else:
-        return authenticationError()
+
 
     if(cFlag == False and eFlag == False):
         return authenticationError()
