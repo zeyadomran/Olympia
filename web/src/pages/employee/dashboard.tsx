@@ -1,7 +1,7 @@
 import { NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { CgGym, CgProfile } from "react-icons/cg";
 import { BiWrench } from "react-icons/bi";
 import {
@@ -12,14 +12,21 @@ import {
 import DashButton from "../../components/DashButton";
 import Logo from "../../components/Logo";
 import SubmitButton from "../../components/SubmitButton";
+import { AuthCTX } from "../../components/AuthProvider";
+import { useIsEmployee } from "../../utils/hooks";
 
 const Dashboard: NextPage = () => {
 	const router = useRouter();
 	const [loggingOut, setLoggingOut] = useState(false);
+	const authCtx = useContext(AuthCTX);
+	useIsEmployee();
 	const logout = async () => {
 		setLoggingOut(true);
-		setTimeout(() => {}, 3000);
-		router.push("/");
+		const res = await authCtx?.logout();
+		setTimeout(() => {
+			if (res) router.push("/");
+			setLoggingOut(false);
+		}, 1000);
 	};
 	return (
 		<>

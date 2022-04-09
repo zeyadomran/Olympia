@@ -4,9 +4,14 @@ import Logo from "../Logo";
 import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
 import { validateGymId, validatePassword } from "../../utils/validate";
+import { useContext } from "react";
+import { AuthCTX } from "../AuthProvider";
+import { useIsAuth } from "../../utils/hooks";
 
 const Login: React.FC = () => {
 	const router = useRouter();
+	const authCtx = useContext(AuthCTX);
+	useIsAuth();
 	return (
 		<div className="w-full h-screen flex justify-center items-center bg-blue-2">
 			<div className="p-8 w-96 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
@@ -17,12 +22,24 @@ const Login: React.FC = () => {
 						let errors: any = {};
 						errors.gymId = validateGymId(values.gymId);
 						errors.password = validatePassword(values.password);
+						if (!errors.gymId && !errors.password) return undefined;
 						return errors;
 					}}
-					onSubmit={(values, { setSubmitting, resetForm }) => {
+					onSubmit={async (values, { setSubmitting, resetForm, setErrors }) => {
 						setSubmitting(true);
-						setTimeout(() => {}, 3000);
-						router.push("/dashboard");
+						const res = await authCtx?.loginClient(
+							parseInt(values.gymId),
+							values.password
+						);
+						console.log(res);
+						if (res) {
+							router.push("/dashboard");
+						} else {
+							setErrors({
+								gymId: "Invalid gym id or password",
+								password: "Invalid gym id or password",
+							});
+						}
 					}}
 				>
 					{(props) => (

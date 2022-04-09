@@ -1,11 +1,11 @@
 import type { NextPage } from "next";
-import { useRouter } from "next/router";
 import Head from "next/head";
 import Logo from "../components/Logo";
 import Link from "next/link";
+import { useIsAuth } from "../utils/hooks";
 
 const Home: NextPage = () => {
-	const router = useRouter();
+	useIsAuth();
 	return (
 		<>
 			<Head>

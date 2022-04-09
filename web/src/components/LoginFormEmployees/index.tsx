@@ -3,37 +3,53 @@ import { useRouter } from "next/router";
 import Logo from "../Logo";
 import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
-import { validateEmail, validatePassword } from "../../utils/validate";
+import { validateGymId, validatePassword } from "../../utils/validate";
+import { useContext } from "react";
+import { AuthCTX } from "../AuthProvider";
+import { useIsAuth } from "../../utils/hooks";
 
 const Login: React.FC = () => {
 	const router = useRouter();
+	const authCtx = useContext(AuthCTX);
+	useIsAuth();
 	return (
 		<div className="w-full h-screen flex justify-center items-center bg-blue-2">
 			<div className="p-8 w-96 bg-white flex flex-col justify-start items-center rounded-lg shadow-md">
 				<Logo>Olympia Login</Logo>
 				<Formik
-					initialValues={{ email: "", password: "" }}
+					initialValues={{ eId: "", password: "" }}
 					validate={(values) => {
 						let errors: any = {};
-						errors.email = validateEmail(values.email);
+						errors.eId = validateGymId(values.eId);
 						errors.password = validatePassword(values.password);
-						if (!errors.email && !errors.password) return undefined;
+						if (!errors.eId && !errors.password) return undefined;
 						return errors;
 					}}
-					onSubmit={(values, { setSubmitting, resetForm }) => {
+					onSubmit={async (values, { setSubmitting, resetForm, setErrors }) => {
 						setSubmitting(true);
-						setTimeout(() => {}, 3000);
-						router.push("/employee/dashboard");
+						const res = await authCtx?.loginEmployee(
+							parseInt(values.eId),
+							values.password
+						);
+						console.log(res);
+						if (res) {
+							router.push("/employee/dashboard");
+						} else {
+							setErrors({
+								eId: "Invalid employee id or password",
+								password: "Invalid employee id or password",
+							});
+						}
 					}}
 				>
 					{(props) => (
 						<Form className="w-full flex flex-col justify-center items-center mt-8 gap-y-2">
 							<InputField
-								type="email"
-								name="email"
-								placeholder="Your email"
-								label="Email"
-								error={props.errors.email}
+								type="text"
+								name="eId"
+								placeholder="Your employee id"
+								label="Employee ID"
+								error={props.errors.eId}
 							/>
 							<InputField
 								type="password"
