@@ -15,6 +15,7 @@ from app import app
 from config import mysql
 from flask import jsonify
 from flask import flash, request
+from flask_cors import CORS, cross_origin
 import jwt
 import bcrypt
 import datetime
@@ -24,10 +25,11 @@ salt = b'$2b$12$bHop6pQFFJBG86NnXZUg4.'
 
 
 @app.route('/employee/login',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def elogin():
 
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _id = _json['eId']
         _pw = _json['password']
     except:
@@ -74,6 +76,7 @@ def elogin():
 
 
 @app.route('/employee/logout',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def elogout():
 
     if request.method == 'POST':
@@ -110,6 +113,7 @@ def elogout():
 
 
 @app.route('/employee/signup',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def eSignup():
 
     if request.method == 'POST':
@@ -133,7 +137,7 @@ def eSignup():
 
         #Gets required attributes from JSON body
         try:
-            _json = request.json
+            _json = request.get_json(force=True)
             _branch = _json["branchId"]
             _email = _json['email']
             _phone = _json['phoneNum']
@@ -195,6 +199,7 @@ def eSignup():
 
 #Employee by ID
 @app.route('/employee/<int:id>',methods=['GET','DELETE','PATCH'])
+@cross_origin(supports_credentials=True)
 def EmpByID(id):
 
         if(request.method == 'GET'):
@@ -310,7 +315,7 @@ def EmpByID(id):
 
                 #Ensures a JSON body was passed
                 try:
-                    _json = request.json
+                    _json = request.get_json(force=True)
                 except:
                     return badRequest()
 
@@ -391,6 +396,7 @@ def EmpByID(id):
 
 #Get all employees
 @app.route('/employee',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAllEmps():
 
         #Permissions: Admin EJWT
@@ -435,6 +441,7 @@ def getAllEmps():
 
 #Get employee off of EJWT
 @app.route('/employee/me',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getEmpEJWT():
 
         #Permissions: Either valid EJWT matching the id requested or Admin EJWT
@@ -480,10 +487,11 @@ def getEmpEJWT():
 
 
 @app.route('/client/login',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def clogin():
 
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _id = _json['clientId']
         _pw = _json['password']
     except:
@@ -529,6 +537,7 @@ def clogin():
         return authenticationError()
 
 @app.route('/client/logout',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def clogout():
 
     if request.method == 'POST':
@@ -565,6 +574,7 @@ def clogout():
         return not_found()
 
 @app.route('/client/signup',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def cSignup():
 
     if request.method == 'POST':
@@ -588,7 +598,7 @@ def cSignup():
 
         #Gets required attributes from JSON body
         try:
-            _json = request.json
+            _json = request.get_json(force=True)
             _email = _json['email']
             _phone = _json['phoneNum']
             _dob = _json['dob']
@@ -646,6 +656,7 @@ def cSignup():
 
 #Client by ID
 @app.route('/client/<int:id>',methods=['GET','DELETE','PATCH'])
+@cross_origin(supports_credentials=True)
 def clientByID(id):
     if(request.method == 'GET'): #GET client by ID
             #Permissions: Either any valid EJWT or CJWT with an ID matching the client being requested
@@ -809,7 +820,7 @@ def clientByID(id):
 
             #Ensures a JSON body was passed
             try:
-                _json = request.json
+                _json = request.get_json(force=True)
             except:
                 return badRequest()
 
@@ -896,6 +907,7 @@ def clientByID(id):
 
 #Get all clients
 @app.route('/client',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAllClients():
 
         #Permissions: Either any valid EJWT
@@ -940,6 +952,7 @@ def getAllClients():
 
 #Get client by CJWT
 @app.route('/client/me',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getClientCJWT():
 
         #Permissions: Either valid EJWT matching the id requested or Admin EJWT
@@ -994,6 +1007,7 @@ def getClientCJWT():
 
 #Get all managers of a specific branch
 @app.route('/branches/<int:bId>/managers',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAllManagersOfBranch(bId):
 
         #Permissions: Either any valid EJWT
@@ -1038,6 +1052,7 @@ def getAllManagersOfBranch(bId):
 
 #Get all trainers of a specific branch
 @app.route('/branches/<int:bId>/trainers',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAllTrainersOfBranch(bId):
 
         #Permissions: Either any valid EJWT
@@ -1082,6 +1097,7 @@ def getAllTrainersOfBranch(bId):
 
 #Get all gym branches or add a gymBranch
 @app.route('/branches',methods=['GET','POST'])
+@cross_origin(supports_credentials=True)
 def getAllBranches():
 
     if(request.method == 'GET'):
@@ -1170,7 +1186,7 @@ def getAllBranches():
 
         #Gets required attributes from JSON body
         try:
-            _json = request.json
+            _json = request.get_json(force=True)
             _name = _json['bName']
             _addr = _json['bAddress']
             _capacity = _json['timeSlotCapacity']
@@ -1217,6 +1233,7 @@ def getAllBranches():
 
 #gymBranch by id
 @app.route('/branches/<int:bId>',methods=['GET','DELETE','PATCH'])
+@cross_origin(supports_credentials=True)
 def BranchbyID(bId):
 
     if (request.method == 'GET'): #Get branch by ID
@@ -1371,7 +1388,7 @@ def BranchbyID(bId):
 
         #Ensures a JSON body was passed
         try:
-            _json = request.json
+            _json = request.get_json(force=True)
         except:
             return badRequest()
 
@@ -1437,6 +1454,7 @@ def BranchbyID(bId):
 
 #Get all Equipment From Branch
 @app.route('/branches/<int:id>/equipment',methods=['GET','POST'])
+@cross_origin(supports_credentials=True)
 def getAllEquipFromBranch(id):
 
         if(request.method == 'GET'):
@@ -1524,7 +1542,7 @@ def getAllEquipFromBranch(id):
 
             #Gets required attributes from JSON body
             try:
-                _json = request.json
+                _json = request.get_json(force=True)
                 _name = _json['eName']
                 _rps = _json['repairStatus']
                 _date = _json['purchaseDate']
@@ -1571,6 +1589,7 @@ def getAllEquipFromBranch(id):
 
 #Get/Delete single Equipment
 @app.route('/equipment/<int:eId>',methods=['GET','DELETE'])
+@cross_origin(supports_credentials=True)
 def getEquipDeleteEquip(eId):
 
     if(request.method == 'GET'):
@@ -1683,6 +1702,7 @@ def getEquipDeleteEquip(eId):
 
 #Move single Equipment from Floor to storage
 @app.route('/equipment/<int:eId>/move',methods=['PUT'])
+@cross_origin(supports_credentials=True)
 def moveEquipment(eId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -1742,6 +1762,7 @@ def moveEquipment(eId):
 
 #Client Reports Equip or Deletes a report
 @app.route('/equipment/<int:eId>/report',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def reportEquipment(eId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -1766,7 +1787,7 @@ def reportEquipment(eId):
 
         #Gets required attributes from JSON body
         try:
-            _json = request.json
+            _json = request.get_json(force=True)
             _issue = _json['issue']
         except:
             return badRequest()
@@ -1829,6 +1850,7 @@ def reportEquipment(eId):
 
 #employee Switches the status of a report
 @app.route('/equipment/<int:eId>/report/<int:cId>/switch',methods=['PUT'])
+@cross_origin(supports_credentials=True)
 def switchReport(eId,cId):
 
     ejwt = request.cookies.get("EJWT",None)
@@ -1885,6 +1907,7 @@ def switchReport(eId,cId):
 
 #Get all reports from a branch
 @app.route('/branches/<int:bId>/equipment/reports',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getReportsFromBranch(bId):
     #Permissions: Either any valid EJWT or CJWT
     ejwt = request.cookies.get("EJWT",None)
@@ -1951,6 +1974,7 @@ def getReportsFromBranch(bId):
 
 #Get All Equipment Reports From Logged in Client
 @app.route('/client/equipment/reports',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getReportsFromClient():
     cjwt = request.cookies.get("CJWT",None)
 
@@ -1996,6 +2020,7 @@ def getReportsFromClient():
 
 #Get all bookings within a week from a branch
 @app.route('/branches/<int:bId>/getBookings',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getWeekBookingsFromBranch(bId):
     #Permissions: Either any valid EJWT or CJWT
     ejwt = request.cookies.get("EJWT",None)
@@ -2137,6 +2162,7 @@ def getWeekBookingsFromBranch(bId):
 
 #Client books or unbooks a timeSlot
 @app.route('/branches/<int:bId>/bookTimeSlot',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def bookTimeSlot(bId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -2159,7 +2185,7 @@ def bookTimeSlot(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _date = _json['date']
         _time = _json['time']
     except:
@@ -2239,6 +2265,7 @@ def bookTimeSlot(bId):
 
 #Employee Adds or Removes Timeslot
 @app.route('/branches/<int:bId>/addTimeSlot',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def addRemoveTimeSlot(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -2259,7 +2286,7 @@ def addRemoveTimeSlot(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _date = _json['date']
         _time = _json['time']
     except:
@@ -2334,6 +2361,7 @@ def addRemoveTimeSlot(bId):
 
 #Employee Adds a default week's worth of timeslots based on times given (on the hour)
 @app.route('/branches/<int:bId>/addTimeSlot/week',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def addWeeksTimeSlots(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -2354,7 +2382,7 @@ def addWeeksTimeSlots(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _start = _json['startTime']
         _end= _json['endTime']
         start = int(_start.replace(":",""))
@@ -2416,6 +2444,7 @@ def addWeeksTimeSlots(bId):
 
 #Get all bookings that the CJWT has booked from that gymBranch from current day on
 @app.route('/branches/<int:bId>/getBooked',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getClientBookingsFromBranch(bId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -2465,6 +2494,7 @@ def getClientBookingsFromBranch(bId):
 
 #Get all Services From Branch
 @app.route('/branches/<int:bId>/getServices',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAllServicesFromBranch(bId):
 
     #Permissions: Either any valid EJWT or CJWT
@@ -2545,6 +2575,7 @@ def getAllServicesFromBranch(bId):
 
 #Get Service From Branch
 @app.route('/branches/<int:bId>/getServices/<int:sId>',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getAServiceFromBranch(bId,sId):
 
     #Permissions: Either any valid EJWT or CJWT
@@ -2621,6 +2652,7 @@ def getAServiceFromBranch(bId,sId):
 
 #Add Service to Branch
 @app.route('/branches/<int:bId>/addService',methods=['POST'])
+@cross_origin(supports_credentials=True)
 def AddAServiceToBranch(bId):
 
     ejwt = request.cookies.get("EJWT",None)
@@ -2642,7 +2674,7 @@ def AddAServiceToBranch(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _name = _json['serviceName']
         _time = _json['timeOfService']
         _endTime = _json['timeEnds']
@@ -2682,6 +2714,7 @@ def AddAServiceToBranch(bId):
 
 #Remove a Service from a Branch
 @app.route('/branches/<int:bId>/removeService/<int:sId>',methods=['DELETE'])
+@cross_origin(supports_credentials=True)
 def RemoveServiceFromBranch(bId,sId):
 
     ejwt = request.cookies.get("EJWT",None)
@@ -2730,6 +2763,7 @@ def RemoveServiceFromBranch(bId,sId):
 
 #Update a Service from a Branch
 @app.route('/branches/<int:bId>/updateService/<int:sId>',methods=['PATCH'])
+@cross_origin(supports_credentials=True)
 def UpdateServiceInBranch(bId,sId):
 
     ejwt = request.cookies.get("EJWT",None)
@@ -2752,7 +2786,7 @@ def UpdateServiceInBranch(bId,sId):
 
     #Ensures a JSON body was passed
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
     except:
         return badRequest()
 
@@ -2824,6 +2858,7 @@ def UpdateServiceInBranch(bId,sId):
 
 #Get all services that the CJWT has booked from that gymBranch from this day forward
 @app.route('/branches/<int:bId>/getServicesBooked',methods=['GET'])
+@cross_origin(supports_credentials=True)
 def getClientServiceBookingsFromBranch(bId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -2870,6 +2905,7 @@ def getClientServiceBookingsFromBranch(bId):
 
 #Client books or unbooks a service
 @app.route('/branches/<int:bId>/bookService/<int:sId>',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def bookService(bId,sId):
     cjwt = request.cookies.get("CJWT",None)
 
@@ -2892,7 +2928,7 @@ def bookService(bId,sId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _date = _json['date']
     except:
         return badRequest()
@@ -2973,6 +3009,7 @@ def bookService(bId,sId):
 
 #Add or Remove Instructs relationship
 @app.route('/branches/<int:bId>/instructs',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def addRemoveInstructs(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -2993,7 +3030,7 @@ def addRemoveInstructs(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _eId = _json['eId']
         _sId = _json['sId']
     except:
@@ -3055,6 +3092,7 @@ def addRemoveInstructs(bId):
 
 #Add or Remove Manages relationship
 @app.route('/branches/<int:bId>/manages',methods=['POST','DELETE'])
+@cross_origin(supports_credentials=True)
 def addRemoveManages(bId):
     ejwt = request.cookies.get("EJWT",None)
 
@@ -3075,7 +3113,7 @@ def addRemoveManages(bId):
 
     #Gets required attributes from JSON body
     try:
-        _json = request.json
+        _json = request.get_json(force=True)
         _eId = _json['eId']
     except:
         return badRequest()
@@ -3136,6 +3174,7 @@ def addRemoveManages(bId):
 
 #Occurs when request cannot be satisfied
 @app.errorhandler(404)
+@cross_origin(supports_credentials=True)
 def not_found(error=None):
     message = {
         'status': 404,
@@ -3179,4 +3218,4 @@ def badRequest():
 
 #Launches the app
 if __name__ == "__main__":
-    app.run(host = "localhost", port=5000)
+    app.run(host='0.0.0.0', port=5000)
