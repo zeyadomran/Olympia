@@ -607,7 +607,6 @@ def cSignup():
             _sex = _json["sex"]
             _mT = _json["memberType"]
             _price = _json["price"]
-            assert(type(_price) == float)
             _startDate = _json["startDate"]
             _endDate = _json["endDate"]
             _pw = _json["password"]

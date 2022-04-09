@@ -8,6 +8,19 @@ interface CTX {
 	client: Client | null;
 	employee: Employee | null;
 	loginClient: (clientId: number, password: string) => Promise<boolean>;
+	signupClient: (
+		email: string,
+		password: string,
+		phoneNum: string,
+		dob: string,
+		firstName: string,
+		lastName: string,
+		sex: string,
+		memberType: string,
+		price: number,
+		startDate: string,
+		endDate: string
+	) => Promise<boolean>;
 	loginEmployee: (eId: number, password: string) => Promise<boolean>;
 	logout: () => Promise<boolean>;
 }
@@ -30,6 +43,44 @@ const AuthProvider: React.FC<Props> = ({ children }) => {
 			const client = await data.json();
 			if (data.status === 200) {
 				setClient(client);
+				return true;
+			}
+			return false;
+		},
+		signupClient: async (
+			email: string,
+			password: string,
+			phoneNum: string,
+			dob: string,
+			firstName: string,
+			lastName: string,
+			sex: string,
+			memberType: string,
+			price: number,
+			startDate: string,
+			endDate: string
+		) => {
+			const data = await fetch(
+				process.env.NEXT_PUBLIC_BASE_URL + "/client/signup",
+				{
+					method: "POST",
+					credentials: "include",
+					body: JSON.stringify({
+						email,
+						password,
+						phoneNum,
+						dob,
+						firstName,
+						lastName,
+						sex,
+						memberType,
+						price,
+						startDate,
+						endDate,
+					}),
+				}
+			);
+			if (data.status === 200) {
 				return true;
 			}
 			return false;

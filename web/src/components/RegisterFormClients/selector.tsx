@@ -1,6 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { NativeSelect } from "@mantine/core";
-import { formatMembershipType, formatSentenceCase } from "../../utils/format";
+import { formatSentenceCase } from "../../utils/format";
 
 interface Props {
 	values: string[];
@@ -18,7 +18,7 @@ const Selector: React.FC<Props> = ({ values, setValue, name, error }) => {
 
 	return (
 		<NativeSelect
-			data={values.map((v) => formatMembershipType(v))}
+			data={values}
 			onChange={(e) => setData(e.target.value)}
 			value={data}
 			label={formatSentenceCase(name)}

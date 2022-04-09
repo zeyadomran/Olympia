@@ -11,13 +11,17 @@ import {
 import SubNavbar from "../SubNavbar";
 import { MEMBERSHIP_TYPES } from "../../utils/SampleData";
 import Selector from "./selector";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useIsEmployee } from "../../utils/hooks";
+import { AuthCTX } from "../AuthProvider";
+import { formatFullDate, getEndDate, getPrice } from "../../utils/format";
 
 const Login: React.FC = () => {
 	const [value, setValue] = useState("");
 	const [error, setError] = useState("");
 	const [success, setSuccess] = useState(false);
-
+	const authCtx = useContext(AuthCTX);
+	useIsEmployee();
 	return (
 		<div className="w-full flex justify-center items-center">
 			<div className="flex flex-col justify-between items-center w-4/5 mt-8">
@@ -32,9 +36,6 @@ const Login: React.FC = () => {
 						dob: "",
 						sex: "",
 						memberType: "",
-						price: "",
-						startDate: "",
-						endDate: "",
 					}}
 					validate={(values) => {
 						let errors: any = {};
@@ -51,15 +52,29 @@ const Login: React.FC = () => {
 						}
 						return errors;
 					}}
-					onSubmit={(values, { setSubmitting, resetForm }) => {
+					onSubmit={async (values, { setSubmitting, resetForm }) => {
 						if (error) return;
 						setSubmitting(true);
-						setTimeout(() => {
-							setSubmitting(false);
+						console.log(values.dob);
+						const res = await authCtx?.signupClient(
+							values.email,
+							values.password,
+							values.phoneNum,
+							formatFullDate(new Date(Date.parse(values.dob))),
+							values.firstName,
+							values.lastName,
+							values.sex,
+							value,
+							getPrice(value),
+							formatFullDate(new Date()),
+							formatFullDate(getEndDate(value, new Date().toString()))
+						);
+						if (res) {
 							setSuccess(true);
-							setValue("");
 							resetForm();
-						}, 3000);
+						} else {
+							setSuccess(false);
+						}
 					}}
 				>
 					{(props) => (
@@ -104,7 +119,7 @@ const Login: React.FC = () => {
 								<InputField
 									type="text"
 									name="dob"
-									placeholder="Your dob (MM-DD-YYYY)"
+									placeholder="Your dob (MM-dd-yyyy)"
 									label="Date of Birth"
 									error={props.errors.dob}
 								/>

@@ -31,7 +31,6 @@ const Login: React.FC = () => {
 							parseInt(values.gymId),
 							values.password
 						);
-						console.log(res);
 						if (res) {
 							router.push("/dashboard");
 						} else {

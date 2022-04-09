@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Logo from "../Logo";
 import InputField from "../InputField";
 import SubmitButton from "../SubmitButton";
-import { validateGymId, validatePassword } from "../../utils/validate";
+import { validateDefault, validatePassword } from "../../utils/validate";
 import { useContext } from "react";
 import { AuthCTX } from "../AuthProvider";
 import { useIsAuth } from "../../utils/hooks";
@@ -20,7 +20,7 @@ const Login: React.FC = () => {
 					initialValues={{ eId: "", password: "" }}
 					validate={(values) => {
 						let errors: any = {};
-						errors.eId = validateGymId(values.eId);
+						errors.eId = validateDefault(values.eId, "employee id");
 						errors.password = validatePassword(values.password);
 						if (!errors.eId && !errors.password) return undefined;
 						return errors;
@@ -31,7 +31,6 @@ const Login: React.FC = () => {
 							parseInt(values.eId),
 							values.password
 						);
-						console.log(res);
 						if (res) {
 							router.push("/employee/dashboard");
 						} else {
