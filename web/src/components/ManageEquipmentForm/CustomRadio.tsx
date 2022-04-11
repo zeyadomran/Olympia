@@ -1,27 +1,34 @@
 import { Loader } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Props {
 	options: string[];
+	initialValue: string;
 	endpoint?: string;
 }
 
-const CustomRadio: React.FC<Props> = ({ options }) => {
-	const [value, setValue] = useState(
-		Math.floor(Math.random() * options.length)
-	);
+const CustomRadio: React.FC<Props> = ({ options, initialValue, endpoint }) => {
+	const [value, setValue] = useState(options.indexOf(initialValue));
 	const [active, setActive] = useState(true);
 	const [loading, setLoading] = useState(false);
 
-	const changeChoice = (choice: string) => {
+	useEffect(() => {
+		setValue(options.indexOf(initialValue));
+	}, [initialValue, options]);
+
+	const changeChoice = async (choice: string) => {
 		if (choice === options[value] || !active) return;
 		setValue(options.indexOf(choice));
 		setLoading(true);
 		setActive(false);
-		setTimeout(() => {
-			setLoading(false);
+		const data = await fetch(process.env.NEXT_PUBLIC_BASE_URL + endpoint!, {
+			method: "PUT",
+			credentials: "include",
+		});
+		if (data.status === 200) {
 			setActive(true);
-		}, 3000);
+		}
+		setLoading(false);
 	};
 
 	return (
