@@ -1,5 +1,5 @@
 import { Loader } from "@mantine/core";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction } from "react";
 import { MdDoneAll, MdErrorOutline } from "react-icons/md";
 
 interface Props {
