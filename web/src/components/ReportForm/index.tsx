@@ -22,11 +22,7 @@ const ReportForm: React.FC = ({}) => {
 	const [success, setSuccess] = useState(0);
 	const [step, setStep] = useState(0);
 
-	const submitReport = async (
-		eId: string | number,
-		bId: string | number,
-		msg: string
-	) => {
+	const submitReport = async (eId: string | number, msg: string) => {
 		setSuccess(1);
 		const data = await fetch(
 			process.env.NEXT_PUBLIC_BASE_URL + `/equipment/${eId}/report`,
@@ -86,7 +82,7 @@ const ReportForm: React.FC = ({}) => {
 			setError("");
 		}
 		if (submitted) {
-			submitReport(equipmentId, branchId, message);
+			submitReport(equipmentId, message);
 			setStep(3);
 			return;
 		}

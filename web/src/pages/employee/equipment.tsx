@@ -2,16 +2,8 @@ import { NextPage } from "next";
 import Head from "next/head";
 import ManageEquipmentForm from "../../components/ManageEquipmentForm";
 import SubNavbar from "../../components/SubNavbar";
-import Item from "../../types/Item";
-import { BRANCHES, EQUIPMENT, REPORTS } from "../../utils/SampleData";
 
-interface Props {
-	branches: Item[];
-	equipment: Item[];
-	reports: Item[];
-}
-
-const Equipment: NextPage<Props> = ({ branches, equipment, reports }) => {
+const Equipment: NextPage = () => {
 	return (
 		<>
 			<Head>
@@ -22,26 +14,12 @@ const Equipment: NextPage<Props> = ({ branches, equipment, reports }) => {
 					<SubNavbar href="/employee/dashboard" />
 					<div className="flex flex-col justify-center items-center w-full gap-y-4">
 						<h2 className="text-4xl font-bold">Manage Equipment</h2>
-						<ManageEquipmentForm
-							branches={branches}
-							equipment={equipment}
-							reports={reports}
-						/>
+						<ManageEquipmentForm />
 					</div>
 				</div>
 			</div>
 		</>
 	);
 };
-
-export async function getServerSideProps() {
-	return {
-		props: {
-			branches: BRANCHES,
-			equipment: EQUIPMENT,
-			reports: REPORTS,
-		},
-	};
-}
 
 export default Equipment;
