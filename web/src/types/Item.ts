@@ -1,4 +1,4 @@
 export default interface Item {
-	id: string;
+	id: string | number;
 	name: string;
 }

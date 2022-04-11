@@ -37,19 +37,30 @@ const TimeSlot: React.FC<Props> = ({ time, date }) => {
 	}, [mode]);
 
 	const ctx = useContext(TimeTableContext);
-	let setStateDates: Dispatch<SetStateAction<Date[]>>, dates: Date[];
+	let setStateDates: Dispatch<SetStateAction<Date[]>>;
+	let dates: Date[];
+	let branchId: number | string;
 	if (ctx) {
 		setStateDates = ctx.setStateDates;
 		dates = ctx.dates;
+		branchId = ctx.branchId;
 	}
 
-	const book = () => {
+	const book = async () => {
 		setMode(SLOT_STATES.LOADING);
-		setTimeout(() => {
+		const data = await fetch(
+			process.env.NEXT_PUBLIC_BASE_URL + `/branches/${branchId}/bookTimeSlot`,
+			{
+				method: "POST",
+				credentials: "include",
+				body: JSON.stringify({ date: date.date, time: time.time }),
+			}
+		);
+		if (data.status === 200) {
 			const res = dates.map((d) => {
 				if (d.date === date.date) {
 					d.bookedAlready = true;
-					d.timeslots.map((t) => {
+					d.timeSlots.map((t) => {
 						if (t.time === time.time) {
 							t.bookedAlready = true;
 							t.available -= 1;
@@ -61,16 +72,26 @@ const TimeSlot: React.FC<Props> = ({ time, date }) => {
 			});
 			setStateDates(res);
 			setMode(SLOT_STATES.SUCCESS);
-		}, 3000);
+		} else {
+			setMode(SLOT_STATES.ERROR);
+		}
 	};
 
-	const cancel = () => {
+	const cancel = async () => {
 		setMode(SLOT_STATES.LOADING);
-		setTimeout(() => {
+		const data = await fetch(
+			process.env.NEXT_PUBLIC_BASE_URL + `/branches/${branchId}/bookTimeSlot`,
+			{
+				method: "DELETE",
+				credentials: "include",
+				body: JSON.stringify({ date: date.date, time: time.time }),
+			}
+		);
+		if (data.status === 200) {
 			const res = dates.map((d) => {
 				if (d.date === date.date) {
 					d.bookedAlready = false;
-					d.timeslots.map((t) => {
+					d.timeSlots.map((t) => {
 						if (t.time === time.time) {
 							t.bookedAlready = false;
 							t.available += 1;
@@ -82,9 +103,10 @@ const TimeSlot: React.FC<Props> = ({ time, date }) => {
 			});
 			setStateDates(res);
 			setMode(SLOT_STATES.SUCCESS);
-		}, 3000);
+		} else {
+			setMode(SLOT_STATES.ERROR);
+		}
 	};
-	useEffect(() => {}), [time.bookedAlready, date.bookedAlready];
 	return (
 		<div
 			className={`p-4 w-full flex flex-row justify-between items-center rounded-lg text-white ${
@@ -100,7 +122,7 @@ const TimeSlot: React.FC<Props> = ({ time, date }) => {
 			<div className={`flex flex-col justify-center items-center w-full`}>
 				<p className="text-lg font-medium select-none">{time.time}</p>
 				<p className="text-lg font-medium select-none">
-					{time.available}/{time.capacity}
+					{time.available}/{date.capacity}
 				</p>
 			</div>
 			{time.bookedAlready && (

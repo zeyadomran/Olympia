@@ -8,30 +8,34 @@ export const formatAndMergeTimeslots = (
 
 	for (let i = 0; i < available.length; i++) {
 		const timeslots: Timeslot[] = [];
-		const availableTimeslots = available[i].timeslots;
+		const availableTimeslots = available[i].timeSlots;
 		let dayBooked = false;
 		for (let j = 0; j < availableTimeslots.length; j++) {
 			const t = availableTimeslots[j];
 			const bookedAlready = booked.find(
-				(b) => b.date === available[i].date && b.time === t.time
+				(b) => b.dateOfBooking === available[i].date && b.timeOfBooking === t[0]
 			);
 			const b = bookedAlready ? true : false;
 			if (b && !dayBooked) dayBooked = true;
-			timeslots.push({ ...t, bookedAlready: b });
+			timeslots.push({
+				time: t[0],
+				available: t[1],
+				bookedAlready: b,
+			});
 		}
 		formattedAvailable.push({
 			...available[i],
-			timeslots,
+			timeSlots: timeslots,
 			bookedAlready: dayBooked,
 		});
 	}
 	return formattedAvailable;
 };
 
-export const formatDate = (date: string): string => {
-	const d = new Date(date);
-	const month = d.toLocaleString("default", { month: "short" });
-	const day = d.getDate();
+export const formatDate = (d: string): string => {
+	const date = addDays(d, 1);
+	const month = date.toLocaleString("en-US", { month: "short" });
+	const day = date.getDate();
 	return `${month} ${day}`;
 };
 
