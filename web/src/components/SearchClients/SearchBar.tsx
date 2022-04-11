@@ -5,7 +5,6 @@ import {
 	MdOutlineErrorOutline,
 	MdOutlineSearch,
 } from "react-icons/md";
-import { findClient } from "../../utils/SampleData";
 import SearchClientsContext from "./SearchClientsContext";
 
 enum STATES {
@@ -24,25 +23,30 @@ const SearchBar: React.FC = () => {
 		if (state === STATES.SUCCESS)
 			setTimeout(() => {
 				setState(STATES.DEFAULT);
-			}, 3000);
+			}, 1000);
 		else if (state === STATES.ERROR)
 			setTimeout(() => {
 				setState(STATES.DEFAULT);
 			}, 1500);
 	}, [state]);
 
-	const search = (id: string) => {
+	const search = async (id: string) => {
 		if (id === "") return;
 		setState(STATES.SEARCHING);
-		setTimeout(() => {
-			const client = findClient(parseInt(id));
-			if (client) {
-				setState(STATES.SUCCESS);
-				setClient(client);
-			} else {
-				setState(STATES.ERROR);
+		const data = await fetch(
+			process.env.NEXT_PUBLIC_BASE_URL + "/client/" + id,
+			{
+				method: "GET",
+				credentials: "include",
 			}
-		}, 3000);
+		);
+		if (data.status === 200) {
+			const c = await data.json();
+			setClient(c);
+			setState(STATES.SUCCESS);
+		} else {
+			setState(STATES.ERROR);
+		}
 	};
 
 	return (

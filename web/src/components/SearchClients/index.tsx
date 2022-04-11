@@ -5,12 +5,11 @@ import SearchClientsContext from "./SearchClientsContext";
 
 const SearchClients: React.FC = () => {
 	const [client, setClient] = useState(undefined);
-
 	return (
 		<SearchClientsContext.Provider value={{ client, setClient }}>
 			<div className="w-full flex flex-col justify-center items-center gap-y-4">
 				<SearchBar />
-				{client && <ClientManager client={client} />}
+				{client && <ClientManager />}
 			</div>
 		</SearchClientsContext.Provider>
 	);

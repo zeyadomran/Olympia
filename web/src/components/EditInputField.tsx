@@ -13,6 +13,7 @@ interface Props {
 	endpoint?: string;
 	validate?: (value: any) => string;
 	noEdit?: boolean;
+	name?: string;
 	small?: boolean;
 }
 
@@ -29,6 +30,8 @@ const EditInputField: React.FC<Props> = ({
 	label,
 	validate,
 	noEdit,
+	endpoint,
+	name,
 	small,
 }) => {
 	const [value, setValue] = useState(initialValue);
@@ -40,8 +43,12 @@ const EditInputField: React.FC<Props> = ({
 			setTimeout(() => {
 				setFormState(FORM_STATES.INITIAL);
 				setError(undefined);
-			}, 3000);
+			}, 1000);
 	}, [formState]);
+
+	useEffect(() => {
+		setValue(initialValue);
+	}, [initialValue]);
 
 	const transitionFormState = (formState: FORM_STATES) => {
 		switch (formState) {
@@ -54,7 +61,7 @@ const EditInputField: React.FC<Props> = ({
 		}
 	};
 
-	const onSubmit = () => {
+	const onSubmit = async () => {
 		if (value === initialValue) {
 			setFormState(FORM_STATES.INITIAL);
 			return;
@@ -67,17 +74,19 @@ const EditInputField: React.FC<Props> = ({
 		if (error) return;
 
 		setFormState(FORM_STATES.SUBMITTING);
-		let res = {
-			code: "200 OK",
-			error: Math.floor(Math.random() * 4) === 2 ? true : false,
-		};
-		setTimeout(() => {
-			if (!res.error) setFormState(FORM_STATES.SUCCESS);
-			else {
-				setFormState(FORM_STATES.ERROR);
-				setError("Something went wrong...");
-			}
-		}, 3000);
+		const obj = {};
+		obj[name!] = value;
+		const body = JSON.stringify(obj);
+		const data = await fetch(process.env.NEXT_PUBLIC_BASE_URL + endpoint!, {
+			method: "PATCH",
+			credentials: "include",
+			body,
+		});
+		if (data.status === 200) {
+			setFormState(FORM_STATES.SUCCESS);
+		} else {
+			setFormState(FORM_STATES.ERROR);
+		}
 	};
 
 	return (
