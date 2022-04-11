@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 interface Props {
 	label: string;
-	initialValue: string;
+	initialValue: string | number;
 	endpoint?: string;
 	validate?: (value: any) => string;
 	noEdit?: boolean;
