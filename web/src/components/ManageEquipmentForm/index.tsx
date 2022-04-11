@@ -121,7 +121,7 @@ const ManageServicesForm: React.FC = ({}) => {
 					)}
 				</Timeline.Item>
 				{step === 2 && (
-					<Timeline.Item title="Issue" bullet={<GoIssueOpened size={14} />}>
+					<Timeline.Item title="Info" bullet={<GoIssueOpened size={14} />}>
 						<div className="w-full flex flex-col justify-start items-start">
 							{equipmentId && branchId && (
 								<>

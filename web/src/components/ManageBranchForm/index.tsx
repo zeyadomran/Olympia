@@ -56,8 +56,8 @@ const ManageBranchForm: React.FC = ({}) => {
 					)}
 				</Timeline.Item>
 				{step === 1 && (
-					<Timeline.Item title="Issue" bullet={<GoIssueOpened size={14} />}>
-						<div className="w-full pt-4 flex flex-col justify-start items-center">
+					<Timeline.Item title="Info" bullet={<GoIssueOpened size={14} />}>
+						<div className="w-fullflex flex-col justify-start items-center">
 							<EditInputField
 								label="Name"
 								small
@@ -68,7 +68,7 @@ const ManageBranchForm: React.FC = ({}) => {
 								}
 							/>
 							<EditInputField
-								label="Name"
+								label="Address"
 								small
 								endpoint={`/branches/${branchId}`}
 								name="bAddress"
@@ -77,7 +77,7 @@ const ManageBranchForm: React.FC = ({}) => {
 								}
 							/>
 							<EditInputField
-								label="Branch Capacity"
+								label="Capacity"
 								small
 								endpoint={`/branches/${branchId}`}
 								name="timeSlotCapacity"
