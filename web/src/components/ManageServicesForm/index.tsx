@@ -5,7 +5,6 @@ import { BiWrench } from "react-icons/bi";
 import { GoIssueOpened } from "react-icons/go";
 import Selector from "../Selector";
 import EditInputField from "../EditInputField";
-import { findService } from "../../utils/SampleData";
 import Branch from "../../types/Branch";
 import Service from "../../types/Service";
 
