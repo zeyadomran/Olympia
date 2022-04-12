@@ -12,7 +12,7 @@ We built an all-in-one solution that allows gyms to manage their branches, servi
 - goto [http://localhost:3000/](http://localhost:3000/)
 ## The Back-End (API):
 ### To get started
-- Download and install [python] (https://www.python.org/downloads/)
+- Download and install [python](https://www.python.org/downloads/)
 - Install Neccessary External Libraries using pip:
 	- Flask
 	- flask-cors
