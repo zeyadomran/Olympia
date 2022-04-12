@@ -1,4 +1,5 @@
 # Olympia
+### By: Zeyad Omran, Austin Shawaga, Nick Zhao</br>
 We built an all-in-one solution that allows gyms to manage their branches, services, equipment, and clients! We decided to call our project Olympia.
 ## The front-end:
 ### To get started
