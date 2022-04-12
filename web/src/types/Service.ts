@@ -9,3 +9,11 @@ export default interface Service {
 	timeEnds: string;
 	Instructors: string[] | number[];
 }
+
+export interface ServiceFormatted {
+	s: Service;
+	date: Date;
+	bookedAlready?: boolean;
+	timeStart: string;
+	timeEnd: string;
+}

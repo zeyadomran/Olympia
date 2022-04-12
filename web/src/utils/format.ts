@@ -1,4 +1,5 @@
 import { ClientBooking, Timeslot, Date as D } from "../types/DateTypes";
+import Service, { ServiceFormatted } from "../types/Service";
 
 export const formatAndMergeTimeslots = (
 	available: D[],
@@ -32,10 +33,53 @@ export const formatAndMergeTimeslots = (
 	return formattedAvailable;
 };
 
+export const formatServiceAvailTimes = (
+	services: Service[],
+	clientBooked: string[]
+) => {
+	const formattedAvailable: ServiceFormatted[] = [];
+	for (let i = 0; i < services.length; i++) {
+		const daysOffered = services[i].daysOfService;
+		for (let j = 0; j < daysOffered.length; j++) {
+			let day = getDate(daysOffered[j]);
+			let b = false;
+
+			for (let k = 0; k < clientBooked.length; k++) {
+				if (new Date(clientBooked[k]) === day) {
+					b = true;
+					break;
+				}
+			}
+
+			formattedAvailable.push({
+				s: services[i],
+				date: day,
+				bookedAlready: b,
+				timeStart: services[i].timeOfService,
+				timeEnd: services[i].timeOfService,
+			});
+		}
+	}
+	return formattedAvailable;
+};
+
+export const getDate = (day: string) => {
+	const today = new Date();
+	const first = today.getDate() - today.getDay() + getDayofWeek(day);
+
+	const date = new Date(today.setDate(first));
+	return date;
+};
+
 export const formatDate = (d: string): string => {
 	const date = addDays(d, 1);
 	const month = date.toLocaleString("en-US", { month: "short" });
 	const day = date.getDate();
+	return `${month} ${day}`;
+};
+export const formatDateDate = (d: Date): string => {
+	const month = d.toLocaleString("en-US", { month: "short" });
+	const day = d.getDate();
 	return `${month} ${day}`;
 };
 
@@ -105,6 +149,26 @@ export const addDays = (date: string, days: number) => {
 	var result = new Date(date);
 	result.setDate(result.getDate() + days);
 	return result;
+};
+
+const getDayofWeek = (d: string) => {
+	switch (d.toUpperCase()) {
+		case "M":
+			return 1;
+		case "T":
+			return 2;
+		case "W":
+			return 3;
+		case "R":
+			return 4;
+		case "F":
+			return 5;
+		case "S":
+			return 6;
+		case "U":
+			return 0;
+	}
+	return 0;
 };
 
 export const formatFullDate = (date: Date): string => {
