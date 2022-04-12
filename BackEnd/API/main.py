@@ -2985,7 +2985,7 @@ def bookService(bId,sId):
             conn = mysql.connect()
             cursor = conn.cursor(pymysql.cursors.DictCursor)
 
-            cursor.execute(f'DELETE FROM service_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND serviceId = {cId} AND branchId = {bId};')
+            cursor.execute(f'DELETE FROM service_books WHERE clientId = {cId} AND dateOfBooking = "{_date}" AND serviceId = {sId} AND branchId = {bId};')
             conn.commit()
 
             m = {"unBookingSuccess" : True}
