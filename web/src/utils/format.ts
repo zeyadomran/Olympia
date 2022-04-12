@@ -45,10 +45,13 @@ export const formatServiceAvailTimes = (
 			let b = false;
 
 			for (let k = 0; k < clientBooked.length; k++) {
-				if (new Date(clientBooked[k]) === day) {
+				if (
+					formatFullDate(addDays(clientBooked[k], 1)) === formatFullDate(day)
+				) {
 					b = true;
 					break;
 				}
+				console.log(b, day, addDays(clientBooked[k], 1));
 			}
 
 			formattedAvailable.push({
@@ -56,7 +59,7 @@ export const formatServiceAvailTimes = (
 				date: day,
 				bookedAlready: b,
 				timeStart: services[i].timeOfService,
-				timeEnd: services[i].timeOfService,
+				timeEnd: services[i].timeEnds,
 			});
 		}
 	}

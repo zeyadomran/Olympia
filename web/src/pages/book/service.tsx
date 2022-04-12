@@ -51,9 +51,13 @@ const Service: NextPage = ({}) => {
 			);
 			if (data.status === 200) {
 				const b = await data.json();
-				const c: string[] = b.filter(
-					(s: { serviceId: string | number }) => s.serviceId === serviceId
-				);
+				const c: string[] = b
+					.filter(
+						(s: { serviceId: string | number }) => s.serviceId === serviceId
+					)
+					.map((s: any) => {
+						return s.dateOfBooking;
+					});
 				const s: Service[] = services?.filter(
 					(ser) => ser.serviceId === serviceId
 				)!;
